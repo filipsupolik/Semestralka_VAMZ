@@ -1,9 +1,11 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -36,14 +38,19 @@ import com.example.vamz_semestralka_hero_journal_dnd.R
 fun HeroJournalMainPageTopAppBar(modifier: Modifier = Modifier ) {
     CenterAlignedTopAppBar(
         title = {
-            Text(
-                text = stringResource(id = R.string.main_page_top_app_bar_decription),
-                style = MaterialTheme.typography.displayLarge
-            )
+            Row(
+                modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.main_page_top_app_bar_decription),
+                    style = MaterialTheme.typography.displayLarge
+                )
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = Color.LightGray
+            titleContentColor = MaterialTheme.colorScheme.primary
         ),
         modifier = modifier
     )
