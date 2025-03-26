@@ -12,9 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +32,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
 import com.example.vamz_semestralka_hero_journal_dnd.data.characters
@@ -93,13 +96,12 @@ fun CharacterPage(modifier: Modifier = Modifier) {
             LazyColumn(
                 contentPadding = it,
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
+                    .fillMaxWidth()
+                    .padding(24.dp)
             ) {
                 items(characters) {
                     HeroItem(
-                        heroProfile = it,
-                        modifier = Modifier
-                            .padding(dimensionResource(R.dimen.padding_small))
+                        heroProfile = it
                     )
                 }
             }
@@ -109,40 +111,68 @@ fun CharacterPage(modifier: Modifier = Modifier) {
 
 @Composable
 fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
-    Card {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.padding_small)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier.width(220.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            HeroItemIcon()
-            HeroItemDescription()
-            HeroItemLvl()
+            HeroItemIcon(
+
+            )
+            HeroItemDescription(
+                name = heroProfile.name,
+                raceOfHero = heroProfile.descriptionCharacterRace,
+                classOfHero = heroProfile.descriptionCharacterClass ,
+
+            )
+            HeroItemLvl(
+                level = heroProfile.lvl,
+
+            )
         }
     }
 }
 
 @Composable
 fun HeroItemIcon(modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(R.drawable._03017_avatar_default_head_person_unknown_icon),
-        contentDescription = stringResource(R.string.hero_icon),
-        modifier = modifier
-            .size(dimensionResource(R.dimen.image_size))
-            .clip(shape = Shapes.small)
-    )
+    Box(
+        modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
+    ) {
+        Image(
+            painter = painterResource(R.drawable._03017_avatar_default_head_person_unknown_icon),
+            contentDescription = stringResource(R.string.hero_icon),
+            modifier = modifier
+                .size(dimensionResource(R.dimen.image_size))
+                .clip(shape = Shapes.small)
+        )
+    }
 }
 
 @Composable
-fun HeroItemDescription(modifier: Modifier = Modifier) {
-    Column {
+fun HeroItemDescription(raceOfHero: String,classOfHero: String,name: String,modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier.width(90.dp)
+    ) {
         Text(
-            text = stringResource(R.string.character_name)
+            text = name
         )
-        Row {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
             Text(
-                text = stringResource(R.string.character_description_race)
+                text = raceOfHero
             )
             Text(
-                text = stringResource(R.string.character_description_class)
+                text = classOfHero
             )
         }
     }
@@ -155,7 +185,7 @@ fun HeroItemLvl(level: Int,modifier: Modifier = Modifier) {
             text = stringResource(R.string.level)
         )
         Text(
-            text = level
+            text = "$level"
         )
     }
 }
