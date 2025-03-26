@@ -3,4 +3,13 @@
     <string name ="character_create_button_desc">Character</string>
     <string name ="world_info_button_desc">Regions of Runettera</string>
     <string name ="background_image">Background of an App</string>
+    <string name="character_name">Jinx</string>
+    <string name="character_description_race">Human</string>
+    <string name="character_description_class">Hunter</string>
+    <string name="level">lvl</string>
+    <string name="main_page_top_app_bar_decription">Hero Journal</string>
+    <string name="home_button_desc">Home button</string>
+    <string name="character_topAppBar_title">Characters</string>
+    <string name="create_new_character_desc">Add new character</string>
+    <string name="hero_icon">Icon of hero in item</string>
 </resources>
