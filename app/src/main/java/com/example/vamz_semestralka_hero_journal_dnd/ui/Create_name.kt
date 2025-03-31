@@ -5,14 +5,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,21 +35,27 @@ fun CharacterNameChoice(modifier: Modifier = Modifier) {
     var nameOfCharacter by remember { mutableStateOf("") }
     Box{
         Image(
-            painter = painterResource(R.drawable.battlegrounds_mobile_india_is_currently_only_out_for_android_users__ios_users_will_have_to_wait_a_li),
+            painter = painterResource(R.drawable._86992),
             contentDescription = "",
             contentScale = ContentScale.FillBounds,
-            modifier = Modifier.fillMaxSize()
+            alpha = 0.5f,
+            modifier = Modifier
+                .fillMaxSize()
         )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier.fillMaxSize().padding(dimensionResource(R.dimen.padding_medium))
         ) {
             CreateNameTitle()
-            CreateNameTextField(nameOfCharacter)
+            CreateNameTextField(
+                nameOfCharacter = nameOfCharacter
+            )
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.padding_medium)),
+                horizontalArrangement = Arrangement.Start
             ) {
                 CreateNameAddButton()
                 CreateNameCancelButton()
@@ -87,10 +94,18 @@ fun CreateNameTextField(nameOfCharacter: String,modifier: Modifier = Modifier) {
         value = nameOfCharacter,
         onValueChange = {},
         label = { Text(
-            text = stringResource(R.string.name_text_field_label)
+            text = stringResource(R.string.name_text_field_label),
+            color = Color.White
         ) },
         keyboardOptions = KeyboardOptions.Default,
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.padding_medium)),
+        shape = shapes.medium,
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = Color.White,
+            focusedBorderColor = Color.White,
+        ),
     )
 }
 
@@ -98,8 +113,8 @@ fun CreateNameTextField(nameOfCharacter: String,modifier: Modifier = Modifier) {
 fun CreateNameTitle(modifier: Modifier = Modifier) {
     Text(
         text = stringResource(R.string.create_name_text),
-        color = Color.Blue,
-        style = MaterialTheme.typography.titleLarge,
+        color = Color.White,
+        style = MaterialTheme.typography.headlineLarge,
         modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
     )
 }

@@ -15,5 +15,5 @@
     <string name="cancel_button_label">Cancel</string>
     <string name="add_button_label">Submit</string>
     <string name="name_text_field_label">Name</string>
-    <string name="create_name_text">Please, tell me your name, little one</string>
+    <string name="create_name_text">Please, tell me your name, hero!</string>
 </resources>
