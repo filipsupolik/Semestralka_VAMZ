@@ -12,4 +12,8 @@
     <string name="character_topAppBar_title">Characters</string>
     <string name="create_new_character_desc">Add new character</string>
     <string name="hero_icon">Icon of hero in item</string>
+    <string name="cancel_button_label">Cancel</string>
+    <string name="add_button_label">Submit</string>
+    <string name="name_text_field_label">Name</string>
+    <string name="create_name_text">Please, tell me your name, hero!</string>
 </resources>
