@@ -16,4 +16,6 @@
     <string name="add_button_label">Submit</string>
     <string name="name_text_field_label">Name</string>
     <string name="create_name_text">Please, tell me your name, hero!</string>
+    <string name="region_top_app_bar">Select region</string>
+    <string name="region_top_app_bar_back_arrow_desc">Return to create character name page</string>
 </resources>
