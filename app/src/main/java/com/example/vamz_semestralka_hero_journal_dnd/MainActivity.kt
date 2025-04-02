@@ -6,7 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
 import com.example.compose.AppTheme
-import com.example.vamz_semestralka_hero_journal_dnd.ui.ListOfHeroesTopAppBar
+import com.example.vamz_semestralka_hero_journal_dnd.data.mixedItems
+import com.example.vamz_semestralka_hero_journal_dnd.data.regions
+import com.example.vamz_semestralka_hero_journal_dnd.ui.HeroListPage
+import com.example.vamz_semestralka_hero_journal_dnd.ui.StarterRegionPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,7 +18,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface {
-                    ListOfHeroesTopAppBar()
+                    HeroListPage(regions)
+                    HeroListPage(races)
+                    HeroListPage(classes)
                 }
             }
         }

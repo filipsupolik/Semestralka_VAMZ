@@ -4,6 +4,34 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
+enum class RaceSize{
+    SMALL, MEDIUM, LARGE
+}
+
+enum class RaceAttributes{
+
+}
+
+sealed class Lists{
+    data class Region(
+        @DrawableRes val imageResourceId: Int,
+        val regionName: String
+    ):Lists()
+    data class HeroClasses(
+        @DrawableRes val imageResourceId: Int,
+        val regionName: String
+    ):Lists()
+    data class HeroRaces(
+        @DrawableRes val iconImageResourceId: Int,
+        @DrawableRes val mainImageResourceId: Int,
+        val raceName: String,
+        val raceBackStory: String,
+        val raceSpeed: Int,
+        val raceSize: RaceSize,
+        val raceAbilities: RaceSize,
+    ):Lists()
+}
+
 data class HeroProfile(
     @DrawableRes val imageResourceId: Int,
     @StringRes val lvlDescription: Int,
@@ -40,62 +68,61 @@ val characters = listOf(
     ),
 )
 
-data class Region(
-    @DrawableRes val imageResourceId: Int,
-    val regionName: String
-)
-
 val regions = listOf(
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.bandle_city_crest_icon,
         regionName = "Bandle City"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.bilgewater_crest_icon,
         regionName = "Bilgewater"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.demacia_crest_icon,
         regionName = "Demacia"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.ionia_crest_icon,
         regionName = "Ionia"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.ixtal_crest_icon,
         regionName = "Ixtal"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.piltover_crest,
         regionName = "Piltover"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.shadow_isles_crest_icon,
         regionName = "Shadow Isles"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.shurima_crest_icon,
         regionName = "Shurima"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.mount_targon_crest_icon,
         regionName = "Targon"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.noxus_crest_icon,
         regionName = "Noxus"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.freljord_crest_icon,
         regionName = "The Freljord"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.void_crest_icon,
         regionName = "The Void"
     ),
-    Region(
+    Lists.Region(
         imageResourceId = R.drawable.zaun_crest_icon,
         regionName = "Zaun"
     )
 )
+val classes = listOf(
+
+)
+val races = listOf()
