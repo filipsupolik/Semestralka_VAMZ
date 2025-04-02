@@ -9,7 +9,12 @@ enum class RaceSize{
 }
 
 enum class RaceAttributes{
-
+    STR,
+    DEX,
+    CON,
+    INT,
+    WIS,
+    CHA
 }
 
 sealed class Lists{
@@ -21,14 +26,15 @@ sealed class Lists{
         @DrawableRes val imageResourceId: Int,
         val regionName: String
     ):Lists()
-    data class HeroRaces(
+    data class HeroRace(
         @DrawableRes val iconImageResourceId: Int,
         @DrawableRes val mainImageResourceId: Int,
         val raceName: String,
         val raceBackStory: String,
         val raceSpeed: Int,
         val raceSize: RaceSize,
-        val raceAbilities: RaceSize,
+        val raceAttributes: RaceAttributes,
+        val raceLanguages: List<String>
     ):Lists()
 }
 
@@ -125,4 +131,8 @@ val regions = listOf(
 val classes = listOf(
 
 )
-val races = listOf()
+val races = listOf(
+    Lists.HeroRace(
+
+    )
+)
