@@ -4,71 +4,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
-enum class RaceSize{
-    SMALL, MEDIUM, LARGE
-}
 
-enum class RaceAttributes(name: String){
-    STR("STR"),
-    DEX("DEX"),
-    CON("CON"),
-    INT("INT"),
-    WIS("WIS"),
-    CHA("CHA")
-}
 
-data class SubRace(
-    val name: String,
-    val extraStats: Map<String, Int> = emptyMap(),
-    val extraTraits: List<RaceTrait> = emptyList()
-)
-
-sealed class RaceTrait(
-    val name: String,
-    val desc: String
-) {
-    class SimpleTraits(name: String, desc: String): RaceTrait(name, desc)
-    class ChoiceTrats(
-        name: String,
-        desc: String,
-        val options: List<String>,
-        val selectedOption: String? = null
-    ): RaceTrait(name, desc)
-}
-
-sealed class HeroRaceDesc(
-    val name: String,
-    val age: String,
-    val size: RaceSize,
-    val speed: String,
-    val fixedLanguages: List<String>, // Always spoken (1 or 2)
-    val availableLanguages: List<String> = emptyList(), // Only if player picks 1
-    val baseStats: Map<String, Int>,
-    val baseTraits: List<RaceTrait>,
-    val subraces: List<SubRace> = emptyList()
-){
-    class AscendBorn: HeroRaceDesc(
-        name = "Ascend-Born",
-        age = "Ascended born mature at a similar rate humans do, and reaching adulthood in their late teens. They can live into the middle of their second century.",
-        size = RaceSize.MEDIUM,
-        speed = "30 ft. per turn",
-        fixedLanguages = listOf("Common"),
-        availableLanguages = listOf("Common", "Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
-        baseStats = mapOf(RaceAttributes.CHA.name to 2),
-        baseTraits = listOf(
-            RaceTrait.SimpleTraits(name = "Darkvision", desc = "You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can't discern color in darkness, only shades of gray."),
-            RaceTrait.SimpleTraits(name = "Ascended Resistance", desc = "You have resistance to necrotic damage and radiant damage."),
-            RaceTrait.SimpleTraits(name = "Healing Hand", desc = "As an action, you can touch a creature and cause it to regain a number of hit points equal to your level. Once you use this trait, you can't use it again until you finish a long rest."),
-            RaceTrait.SimpleTraits(name = "Light Bearer", desc = "You know the light cantrip. Charisma is your spellcasting ability for it."),
-        ),
-        subraces = listOf(
-            SubRace(
-                name = "Protector",
-                extraStats = mapOf(RaceAttributes.WIS.name to 1)
-                )
-        )
-    )
-}
 
 
 sealed class Lists{
@@ -177,10 +114,46 @@ val regions = listOf(
     )
 )
 val classes = listOf(
-
+    Lists.HeroClasses(
+        imageResourceId = 0,
+        className = "Cleric"
+    ),
+    Lists.HeroClasses(
+        imageResourceId = 0,
+        className = "Paladin"
+    ),
+    Lists.HeroClasses(
+        imageResourceId = 0,
+        className = "Ranger"
+    ),
+    Lists.HeroClasses(
+        imageResourceId = 0,
+        className = "Rogue"
+    ),
+    Lists.HeroClasses(
+        imageResourceId = 0,
+        className = "Wizard"
+    )
 )
 val races = listOf(
     Lists.HeroRace(
-
+        iconImageResourceId = R.drawable.azir,
+        raceName = "Ascend Born"
+    ),
+    Lists.HeroRace(
+        iconImageResourceId = R.drawable.aatrox,
+        raceName = "Darkin-Born"
+    ),
+    Lists.HeroRace(
+        iconImageResourceId = R.drawable.fiora,
+        raceName = "Human"
+    ),
+    Lists.HeroRace(
+        iconImageResourceId = R.drawable.xayah,
+        raceName = "Vastaya"
+    ),
+    Lists.HeroRace(
+        iconImageResourceId = R.drawable.teemo,
+        raceName = "Yordle"
     )
 )

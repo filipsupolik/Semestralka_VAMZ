@@ -25,21 +25,24 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
+import com.example.vamz_semestralka_hero_journal_dnd.data.races
 
 @Composable
-fun HeroListPage(listOfDifferentTypes: List<Lists>,modifier: Modifier = Modifier){
+fun HeroListPage(whatToSelect: String,listOfDifferentTypes: List<Lists>,modifier: Modifier = Modifier){
     Scaffold(
-        topBar = { HeroListTopAppBar() }
-    ) {  it ->
+        topBar = { HeroListTopAppBar(
+            whatToSelect = whatToSelect
+        ) }
+    ) {  innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .padding(dimensionResource(R.dimen.padding_medium)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
-            contentPadding = it,
+            contentPadding = innerPadding,
         ) {
             items(listOfDifferentTypes) { item ->
                 when(item){
-                    is Lists.HeroRaces -> HeroRaceItem(heroRace = item)
+                    is Lists.HeroRace -> HeroRaceItem(heroRace = item)
                     is Lists.HeroClasses -> HeroClassItem(heroClass = item)
                     is Lists.Region -> RegionItem(region = item)
                 }
@@ -50,11 +53,11 @@ fun HeroListPage(listOfDifferentTypes: List<Lists>,modifier: Modifier = Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeroListTopAppBar(modifier: Modifier = Modifier){
+fun HeroListTopAppBar(whatToSelect: String,modifier: Modifier = Modifier){
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = stringResource(R.string.region_top_app_bar)
+                text = stringResource(R.string.region_top_app_bar, whatToSelect)
             )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -99,14 +102,14 @@ fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = heroClass.regionName,
+                text = heroClass.className,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_medium)),
                 style = MaterialTheme.typography.headlineMedium
             )
             Image(
                 painter = painterResource(heroClass.imageResourceId),
-                contentDescription = heroClass.regionName,
+                contentDescription = heroClass.className,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(70.dp)
@@ -116,7 +119,7 @@ fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HeroRaceItem(heroRace: Lists.HeroRaces, modifier: Modifier = Modifier) {
+fun HeroRaceItem(heroRace: Lists.HeroRace, modifier: Modifier = Modifier) {
     Card(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -125,14 +128,14 @@ fun HeroRaceItem(heroRace: Lists.HeroRaces, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = heroRace.regionName,
+                text = heroRace.raceName,
                 modifier = Modifier
                     .padding(dimensionResource(R.dimen.padding_medium)),
                 style = MaterialTheme.typography.headlineMedium
             )
             Image(
-                painter = painterResource(heroRace.imageResourceId),
-                contentDescription = heroRace.regionName,
+                painter = painterResource(heroRace.iconImageResourceId),
+                contentDescription = heroRace.raceName,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(70.dp)
@@ -144,5 +147,5 @@ fun HeroRaceItem(heroRace: Lists.HeroRaces, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun HeroListPreview() {
-    HeroListPage()
+    HeroListPage("race",listOfDifferentTypes = races)
 }

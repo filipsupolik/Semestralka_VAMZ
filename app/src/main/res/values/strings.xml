@@ -3,7 +3,6 @@
     <string name ="character_create_button_desc">Character</string>
     <string name ="world_info_button_desc">Regions of Runettera</string>
     <string name ="background_image">Background of an App</string>
-    <string name="character_name">Jinx</string>
     <string name="character_description_race">Human</string>
     <string name="character_description_class">Hunter</string>
     <string name="level">lvl</string>
@@ -16,6 +15,9 @@
     <string name="add_button_label">Submit</string>
     <string name="name_text_field_label">Name</string>
     <string name="create_name_text">Please, tell me your name, hero!</string>
-    <string name="region_top_app_bar">Select region</string>
+    <string name="region_top_app_bar">Select %1$s</string>
     <string name="region_top_app_bar_back_arrow_desc">Return to create character name page</string>
+    <string name="description_page_top_app_bar_back_arrow_desc">Return back to choosing</string>
+    <string name="description_page_top_app_bar_text">%1$s</string>
+    <string name="Stats_top_app_bar_title">Abilities</string>
 </resources>
