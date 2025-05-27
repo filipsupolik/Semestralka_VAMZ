@@ -4,10 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
-
-
-
-
 sealed class Lists{
     data class Region(
         @DrawableRes val imageResourceId: Int,

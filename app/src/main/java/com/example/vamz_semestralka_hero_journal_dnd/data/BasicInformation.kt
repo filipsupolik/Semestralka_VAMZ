@@ -32,6 +32,13 @@ sealed class RaceTrait(
     ): RaceTrait(name, desc)
 }
 
+data class Spell(
+    val name: String,
+    val level: Int,
+    val school: String,
+    val description: String
+)
+
 sealed class HeroRaceDesc(
     val name: String,
     val descriptionCharacterRace: String,
@@ -366,5 +373,282 @@ sealed class HeroRaceDesc(
             )
         )
     )
+
+}
+
+sealed class HeroClassDesc(
+    val hitDice: String,
+    val savingThrows: Pair<RaceAttributes, RaceAttributes>,
+    val skills: List<String>,
+    val armor: String,
+    val weapon: String,
+    val spells: List<Spell>
+)
+{
+    class Cleric: HeroClassDesc(
+        hitDice = "1d8 per level",
+        savingThrows = Pair(RaceAttributes.WIS, RaceAttributes.CHA),
+        skills = listOf("History", "Insight", "Medicine", "Persuasion", "Religion"),
+        armor = "Light and Medium armor and Shields",
+        weapon = "Simple weapons",
+        spells = listOf(
+            Spell(
+                name = "Cure Wounds",
+                level = 1,
+                school = "Evocation",
+                description = "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier. No effect on undead or constructs."
+            ),
+            Spell(
+                name = "Bless",
+                level = 1,
+                school = "Enchantment",
+                description = "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw."
+            ),
+            Spell(
+                name = "Guiding Bolt",
+                level = 1,
+                school = "Evocation",
+                description = "A flash of light streaks toward a creature of your choice within range. Make a ranged spell attack against the target. On a hit, the target takes 4d6 radiant damage, and the next attack roll made against this target before the end of your next turn has advantage."
+            ),
+            Spell(
+                name = "Shield of Faith",
+                level = 1,
+                school = "Abjuration",
+                description = "A shimmering field appears and surrounds a creature of your choice within range, granting it a +2 bonus to AC for the duration."
+            ),
+            Spell(
+                name = "Spiritual Weapon",
+                level = 2,
+                school = "Evocation",
+                description = "You create a floating, spectral weapon within range that lasts for the duration or until you cast this spell again. When you cast the spell, you can make a melee spell attack against a creature within 5 feet of the weapon."
+            ),
+            Spell(
+                name = "Prayer of Healing",
+                level = 2,
+                school = "Evocation",
+                description = "Up to six creatures of your choice that you can see within range each regain hit points equal to 2d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs."
+            )
+        )
+    )
+
+    class Paladin : HeroClassDesc(
+        hitDice = "1d10 per level",
+        savingThrows = Pair(RaceAttributes.WIS, RaceAttributes.CHA),
+        skills = listOf(
+            "Athletics",
+            "Insight",
+            "Intimidation",
+            "Medicine",
+            "Persuasion",
+            "Religion"
+        ),
+        armor = "Light, Medium, and Heavy armor and Shields",
+        weapon = "Simple weapons, martial weapons",
+        spells = listOf(
+            Spell(
+                name = "Divine Favor",
+                level = 1,
+                school = "Evocation",
+                description = "Your weapon is imbued with divine energy. On hit, the target takes an extra 1d4 radiant damage."
+            ),
+            Spell(
+                name = "Bless",
+                level = 1,
+                school = "Enchantment",
+                description = "Up to three creatures of your choice gain a +1d4 bonus to attack rolls and saving throws for the duration."
+            ),
+            Spell(
+                name = "Shield of Faith",
+                level = 1,
+                school = "Abjuration",
+                description = "A shimmering field appears around a creature, giving +2 AC for up to 10 minutes."
+            ),
+            Spell(
+                name = "Compelled Duel",
+                level = 1,
+                school = "Enchantment",
+                description = "A creature must make a Wisdom saving throw or be drawn to fight you, having disadvantage on attacks not targeting you."
+            ),
+            Spell(
+                name = "Cure Wounds",
+                level = 1,
+                school = "Evocation",
+                description = "Touch a creature to restore hit points equal to 1d8 + your spellcasting modifier."
+            ),
+            Spell(
+                name = "Wrathful Smite",
+                level = 1,
+                school = "Evocation",
+                description = "The next time you hit a creature with a melee weapon attack, it takes an extra 1d6 psychic damage and must succeed on a Wisdom saving throw or be frightened until the spell ends."
+            )
+        )
+    )
+
+    class Ranger : HeroClassDesc(
+        hitDice = "1d10 per level",
+        savingThrows = Pair(RaceAttributes.STR, RaceAttributes.DEX),
+        skills = listOf(
+            "Animal Handling",
+            "Athletics",
+            "Insight",
+            "Investigation",
+            "Nature",
+            "Perception",
+            "Stealth",
+            "Survival"
+        ),
+        armor = "Light armor, medium armor, shields",
+        weapon = "Simple weapons, martial weapons",
+        spells = listOf(
+            Spell(
+                name = "Hunter's Mark",
+                level = 1,
+                school = "Divination",
+                description = "Mark a creature as your quarry. Deal +1d6 extra damage on weapon attacks against it. You have advantage on Perception and Survival checks to find it."
+            ),
+            Spell(
+                name = "Cure Wounds",
+                level = 1,
+                school = "Evocation",
+                description = "Restore 1d8 + your spellcasting modifier hit points to a creature you touch."
+            ),
+            Spell(
+                name = "Absorb Elements",
+                level = 1,
+                school = "Abjuration",
+                description = "Capture incoming energy from acid, cold, fire, lightning, or thunder. You gain resistance to the triggering damage and deal extra damage with your next melee attack."
+            ),
+            Spell(
+                name = "Speak with Animals",
+                level = 1,
+                school = "Divination",
+                description = "You gain the ability to comprehend and verbally communicate with beasts for 10 minutes."
+            ),
+            Spell(
+                name = "Ensnaring Strike",
+                level = 1,
+                school = "Conjuration",
+                description = "On your next weapon hit, thorny vines attempt to restrain the target. On a failed Strength save, the target is restrained and takes 1d6 piercing damage at the start of each turn."
+            ),
+            Spell(
+                name = "Detect Magic",
+                level = 1,
+                school = "Divination",
+                description = "Sense the presence of magic within 30 feet of you for up to 10 minutes."
+            )
+        )
+    )
+
+    class Rogue : HeroClassDesc(
+        hitDice = "1d8 per level",
+        savingThrows = Pair(RaceAttributes.DEX, RaceAttributes.INT),
+        skills = listOf(
+            "Acrobatics",
+            "Athletics",
+            "Deception",
+            "Insight",
+            "Intimidation",
+            "Investigation",
+            "Perception",
+            "Performance",
+            "Persuasion",
+            "Sleight of Hand",
+            "Stealth"
+        ),
+        armor = "Light armor",
+        weapon = "Simple weapons, hand crossbows, longswords, rapiers, shortswords",
+        spells = listOf(
+            Spell(
+                name = "Mage Hand",
+                level = 0,
+                school = "Conjuration (Cantrip)",
+                description = "Create a spectral floating hand within 30 feet that can manipulate objects, open containers, and retrieve items."
+            ),
+            Spell(
+                name = "Minor Illusion",
+                level = 0,
+                school = "Illusion (Cantrip)",
+                description = "Create a sound or an image of an object within range that lasts for 1 minute to distract or deceive enemies."
+            ),
+            Spell(
+                name = "Disguise Self",
+                level = 1,
+                school = "Illusion",
+                description = "Change your appearance and clothing for 1 hour. Physical interaction reveals the illusion."
+            ),
+            Spell(
+                name = "Charm Person",
+                level = 1,
+                school = "Enchantment",
+                description = "Attempt to charm a humanoid you can see. They make a Wisdom saving throw with advantage if you're fighting them."
+            ),
+            Spell(
+                name = "Silent Image",
+                level = 1,
+                school = "Illusion",
+                description = "Create a visual illusion no larger than a 15-ft cube. The image moves and appears real, but has no sound or interaction."
+            ),
+            Spell(
+                name = "Shield",
+                level = 1,
+                school = "Abjuration",
+                description = "As a reaction, gain +5 AC until the start of your next turn. Negates triggering Magic Missile."
+            )
+        )
+    )
+
+    class Wizard : HeroClassDesc(
+        hitDice = "1d6 per level",
+        savingThrows = Pair(RaceAttributes.INT, RaceAttributes.WIS),
+        skills = listOf(
+            "Arcana",
+            "History",
+            "Insight",
+            "Investigation",
+            "Medicine",
+            "Religion"
+        ),
+        armor = "None",
+        weapon = "Daggers, darts, slings, quarterstaffs, light crossbows",
+        spells = listOf(
+            Spell(
+                name = "Magic Missile",
+                level = 1,
+                school = "Evocation",
+                description = "Vytvorí tri svietiace strely magickej energie, ktoré automaticky zasiahnu ciele a spôsobia 1d4 + 1 poškodenia každá. Na vyšších úrovniach pridáva ďalšie strely."
+            ),
+            Spell(
+                name = "Mage Armor",
+                level = 1,
+                school = "Abjuration",
+                description = "Chráni cieľ neviditeľným silovým poľom, ktoré nastaví jeho základné AC na 13 + jeho Dexterity modifier, pokiaľ nenosí brnenie."
+            ),
+            Spell(
+                name = "Shield",
+                level = 1,
+                school = "Abjuration",
+                description = "Reakcia, ktorá zvýši AC o 5 až do začiatku tvojho ďalšieho ťahu a neguje útoky Magic Missile."
+            ),
+            Spell(
+                name = "Sleep",
+                level = 1,
+                school = "Enchantment",
+                description = "Uspí tvory v oblasti s celkovým počtom životov až do 5d8. Prioritne ovplyvňuje tvory s najnižším počtom životov."
+            ),
+            Spell(
+                name = "Detect Magic",
+                level = 1,
+                school = "Divination",
+                description = "Na 10 minút detekuje prítomnosť mágie v 30-stopovom okruhu. Môže byť obsiahnutý ako rituál."
+            ),
+            Spell(
+                name = "Feather Fall",
+                level = 1,
+                school = "Transmutation",
+                description = "Reakcia, ktorá spomalí pád až piatich tvorov na 60 stôp za kolo, čím zabráni poškodeniu z pádu."
+            )
+        )
+    )
+
 
 }
