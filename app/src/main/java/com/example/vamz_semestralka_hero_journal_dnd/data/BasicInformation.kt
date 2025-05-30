@@ -15,7 +15,7 @@ enum class RaceAttributes(attr: String){
 
 data class SubRace(
     val name: String,
-    val extraStats: Map<String, Int> = emptyMap(),
+    val extraStats: Map<RaceAttributes, Int> = emptyMap(),
     val extraTraits: List<RaceTrait> = emptyList()
 )
 
@@ -47,7 +47,7 @@ sealed class HeroRaceDesc(
     val speed: String,
     val fixedLanguages: List<String>, // Always spoken (1 or 2)
     val availableLanguages: List<String> = emptyList(), // Only if player picks 1
-    val baseStats: Map<String, Int>,
+    val baseStats: Map<RaceAttributes, Int>,
     val baseTraits: List<RaceTrait>,
     val subraces: List<SubRace> = emptyList(),
     descriptionForLanguageChoice: String
@@ -63,7 +63,7 @@ sealed class HeroRaceDesc(
         fixedLanguages = listOf("Common"),
         descriptionForLanguageChoice = "You can speak, read, and write Common and one regional language.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
-        baseStats = mapOf(RaceAttributes.CHA.name to 2),
+        baseStats = mapOf(RaceAttributes.CHA to 2),
         baseTraits = listOf(
             RaceTrait.SimpleTraits(name = "Darkvision", desc = "You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can't discern color in darkness, only shades of gray."),
             RaceTrait.SimpleTraits(name = "Ascended Resistance", desc = "You have resistance to necrotic damage and radiant damage."),
@@ -73,7 +73,7 @@ sealed class HeroRaceDesc(
         subraces = listOf(
             SubRace(
                 name = "Protector",
-                extraStats = mapOf(RaceAttributes.WIS.name to 1),
+                extraStats = mapOf(RaceAttributes.WIS to 1),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(name = "Radiant Soul", desc = "Starting at 3rd level, you can use your action to unleash the divine energy within yourself, causing your eyes to glimmer and two luminous, incorporeal wings to sprout from your back.\n" +
                             "Your transformation lasts for 1 minute or until you end it as a bonus action. During it, you have a flying speed of 30 feet, and once on each of your turns, you can deal extra radiant damage to one target when you deal damage to it with an attack or a spell. The extra radiant damage equals your level.\n" +
@@ -82,7 +82,7 @@ sealed class HeroRaceDesc(
             ),
             SubRace(
                 name = "Scourge",
-                extraStats = mapOf(RaceAttributes.CON.name to 1),
+                extraStats = mapOf(RaceAttributes.CON to 1),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(name = "Radiant Consumption", desc = "Starting at 3rd level, you can use your action to unleash the divine energy within yourself, causing a searing light to radiate from you, pour out of your eyes and mouth, and threaten to char you.\n" +
                             "Your transformation lasts for 1 minute or until you end it as a bonus action. During it, you shed bright light in a 10-foot radius and dim light for an additional 10 feet, and at the end of each of your turns, you and each creature within 10 feet of you take radiant damage equal to half your level (rounded up). In addition, once on each of your turns, you can deal extra radiant damage to one target when you deal damage to it with an attack or a spell. The extra radiant damage equals your level.\n" +
@@ -101,7 +101,7 @@ sealed class HeroRaceDesc(
         fixedLanguages = listOf("Common"),
         descriptionForLanguageChoice = "You can speak, read, and write Common and one regional language.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
-        baseStats = mapOf(RaceAttributes.CHA.name to 2),
+        baseStats = mapOf(RaceAttributes.CHA to 2),
         baseTraits = listOf(
             RaceTrait.SimpleTraits(
                 name = "Darkvision",
@@ -115,7 +115,7 @@ sealed class HeroRaceDesc(
         subraces = listOf(
             SubRace(
                 name = "Darkin's Charm",
-                extraStats = mapOf(RaceAttributes.WIS.name to 1),
+                extraStats = mapOf(RaceAttributes.WIS to 1),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
                         name = "Darkin's Tongue",
@@ -125,7 +125,7 @@ sealed class HeroRaceDesc(
             ),
             SubRace(
                 name = "Hellblade",
-                extraStats = mapOf(RaceAttributes.STR.name to 1),
+                extraStats = mapOf(RaceAttributes.STR to 1),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
                         name = "Legacy of Darkins",
@@ -146,12 +146,12 @@ sealed class HeroRaceDesc(
         descriptionForLanguageChoice = "You can speak, read, and write Common and one additional language of your choice.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
         baseStats = mapOf(
-            RaceAttributes.STR.name to 1,
-            RaceAttributes.DEX.name to 1,
-            RaceAttributes.CON.name to 1,
-            RaceAttributes.INT.name to 1,
-            RaceAttributes.WIS.name to 1,
-            RaceAttributes.CHA.name to 1,
+            RaceAttributes.STR to 1,
+            RaceAttributes.DEX to 1,
+            RaceAttributes.CON to 1,
+            RaceAttributes.INT to 1,
+            RaceAttributes.WIS to 1,
+            RaceAttributes.CHA to 1,
         ),
         baseTraits = listOf(
             RaceTrait.SimpleTraits(
@@ -167,12 +167,12 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Variant Human",
                 extraStats = mapOf(
-                    RaceAttributes.STR.name to 0,
-                    RaceAttributes.DEX.name to 0,
-                    RaceAttributes.CON.name to 0,
-                    RaceAttributes.INT.name to 0,
-                    RaceAttributes.WIS.name to 0,
-                    RaceAttributes.CHA.name to 0
+                    RaceAttributes.STR to 0,
+                    RaceAttributes.DEX to 0,
+                    RaceAttributes.CON to 0,
+                    RaceAttributes.INT to 0,
+                    RaceAttributes.WIS to 0,
+                    RaceAttributes.CHA to 0
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -208,8 +208,8 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Kiilash",
                 extraStats = mapOf(
-                    RaceAttributes.CON.name to 2,
-                    RaceAttributes.STR.name to 1
+                    RaceAttributes.CON to 2,
+                    RaceAttributes.STR to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -225,9 +225,9 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Marai",
                 extraStats = mapOf(
-                    RaceAttributes.STR.name to 1,
-                    RaceAttributes.CON.name to 1,
-                    RaceAttributes.CHA.name to 1
+                    RaceAttributes.STR to 1,
+                    RaceAttributes.CON to 1,
+                    RaceAttributes.CHA to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -243,8 +243,8 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Ottrani",
                 extraStats = mapOf(
-                    RaceAttributes.DEX.name to 2,
-                    RaceAttributes.CHA.name to 1
+                    RaceAttributes.DEX to 2,
+                    RaceAttributes.CHA to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -260,8 +260,8 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Shimon",
                 extraStats = mapOf(
-                    RaceAttributes.DEX.name to 2,
-                    RaceAttributes.INT.name to 1
+                    RaceAttributes.DEX to 2,
+                    RaceAttributes.INT to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -277,8 +277,8 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Shifter",
                 extraStats = mapOf(
-                    RaceAttributes.CON.name to 2,
-                    RaceAttributes.STR.name to 1
+                    RaceAttributes.CON to 2,
+                    RaceAttributes.STR to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -310,8 +310,8 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Guerilla Yordle",
                 extraStats = mapOf(
-                    RaceAttributes.DEX.name to 2,
-                    RaceAttributes.CON.name to 1
+                    RaceAttributes.DEX to 2,
+                    RaceAttributes.CON to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -331,8 +331,7 @@ sealed class HeroRaceDesc(
             SubRace(
                 name = "Stout Yordle",
                 extraStats = mapOf(
-                    RaceAttributes.CON.name to 2
-                    // Additional +1 to Strength or Wisdom based on variant
+                    RaceAttributes.CON to 2
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -352,13 +351,12 @@ sealed class HeroRaceDesc(
                         desc = "Whenever you make an Intelligence (History) check related to the origin of a weapon, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal proficiency bonus."
                     )
                 )
-                // Note: Stout Yordle has sub-variants: Sturdy (+1 Wisdom, Yordle Toughness) and Brawny (+1 Strength, Relentless Endurance, Yordle Armor Training)
             ),
             SubRace(
                 name = "Cunning Yordle",
                 extraStats = mapOf(
-                    RaceAttributes.INT.name to 2,
-                    RaceAttributes.DEX.name to 1
+                    RaceAttributes.INT to 2,
+                    RaceAttributes.DEX to 1
                 ),
                 extraTraits = listOf(
                     RaceTrait.SimpleTraits(
@@ -377,15 +375,20 @@ sealed class HeroRaceDesc(
 }
 
 sealed class HeroClassDesc(
+    val name: String,
+    val description: String,
     val hitDice: String,
     val savingThrows: Pair<RaceAttributes, RaceAttributes>,
     val skills: List<String>,
     val armor: String,
     val weapon: String,
-    val spells: List<Spell>
+    val spells: List<Spell>,
+    val skillChoices: Int = 2
 )
 {
     class Cleric: HeroClassDesc(
+        name = "Cleric",
+        description = "Divine spellcaster who wields holy power.",
         hitDice = "1d8 per level",
         savingThrows = Pair(RaceAttributes.WIS, RaceAttributes.CHA),
         skills = listOf("History", "Insight", "Medicine", "Persuasion", "Religion"),
@@ -432,6 +435,8 @@ sealed class HeroClassDesc(
     )
 
     class Paladin : HeroClassDesc(
+        name = "Paladin",
+        description = "Holy knight, sworn to uphold divine righteousness",
         hitDice = "1d10 per level",
         savingThrows = Pair(RaceAttributes.WIS, RaceAttributes.CHA),
         skills = listOf(
@@ -485,6 +490,8 @@ sealed class HeroClassDesc(
     )
 
     class Ranger : HeroClassDesc(
+        name = "Ranger",
+        description = "Master hunter, excelling at archery and nature magic",
         hitDice = "1d10 per level",
         savingThrows = Pair(RaceAttributes.STR, RaceAttributes.DEX),
         skills = listOf(
@@ -540,6 +547,8 @@ sealed class HeroClassDesc(
     )
 
     class Rogue : HeroClassDesc(
+        name = "Rogue",
+        description = "stealthy expert in tricks, traps, and backstabs",
         hitDice = "1d8 per level",
         savingThrows = Pair(RaceAttributes.DEX, RaceAttributes.INT),
         skills = listOf(
@@ -598,6 +607,8 @@ sealed class HeroClassDesc(
     )
 
     class Wizard : HeroClassDesc(
+        name = "Wizard",
+        description = "Spellcaster who studies magic",
         hitDice = "1d6 per level",
         savingThrows = Pair(RaceAttributes.INT, RaceAttributes.WIS),
         skills = listOf(

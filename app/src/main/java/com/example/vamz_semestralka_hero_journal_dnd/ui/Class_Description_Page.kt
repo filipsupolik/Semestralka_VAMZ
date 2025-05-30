@@ -1,9 +1,5 @@
-package com.example.vamz_semestralka_hero_journal_dnd.ui
-
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,21 +7,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,182 +27,165 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClassDescriptionPage(
-    className: String,
+fun HeroClassDetailScreen(
     heroClass: HeroClassDesc,
-    imageRes: Int,
-    modifier: Modifier = Modifier
+    onClassConfirmed: (selectedSkills: List<String>, selectedSpell: Spell?) -> Unit,
+    imageRes: Int
 ) {
+    var selectedSkills by remember { mutableStateOf<List<String>>(emptyList()) }
     var selectedSpell by remember { mutableStateOf<Spell?>(null) }
-    var showSpellDialog by remember { mutableStateOf(false) }
+    var descriptionDialogSpell by remember { mutableStateOf<Spell?>(null) }
 
     Scaffold(
         topBar = {
-            CharacterPageTopAppBar(description = className)
+            CenterAlignedTopAppBar(
+                title = { Text(heroClass.name, style = MaterialTheme.typography.titleLarge) }
+            )
         }
     ) { innerPadding ->
-        Box(
+
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(16.dp)
         ) {
+            // Obrázok triedy hore
             Image(
                 painter = painterResource(id = imageRes),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentDescription = heroClass.name,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(250.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                contentScale = ContentScale.Crop
             )
-            var selectedSkills by remember { mutableStateOf(setOf<String>()) }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 250.dp)
-                    .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .background(Color.LightGray)
-                    .padding(16.dp)
-            ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Popis triedy (Text nad kartami)
+            Text(
+                text = heroClass.description,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Základné info (texty bez kariet)
+            Text("Hit Dice: ${heroClass.hitDice}", style = MaterialTheme.typography.bodyLarge)
+            Text("Saving Throws: ${heroClass.savingThrows.first}, ${heroClass.savingThrows.second}", style = MaterialTheme.typography.bodyLarge)
+            Text("Armor Proficiencies: ${heroClass.armor}", style = MaterialTheme.typography.bodyLarge)
+            Text("Weapon Proficiencies: ${heroClass.weapon}", style = MaterialTheme.typography.bodyLarge)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Výber skillov (zoznam, klikací text, max podľa skillChoices)
+            Text("Choose ${heroClass.skillChoices} skills:", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            heroClass.skills.forEach { skill ->
+                val isSelected = skill in selectedSkills
                 Text(
-                    text = className,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    text = skill,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            selectedSkills = if (isSelected) {
+                                selectedSkills - skill
+                            } else if (selectedSkills.size < heroClass.skillChoices) {
+                                selectedSkills + skill
+                            } else selectedSkills
+                        }
+                        .padding(12.dp),
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                 )
+            }
 
-                Text("Hit Dice: ${heroClass.hitDice}")
-                Text("Saving Throws: ${heroClass.savingThrows.first} & ${heroClass.savingThrows.second}")
-                Text("Armor: ${heroClass.armor}")
-                Text("Weapons: ${heroClass.weapon}")
+            Spacer(modifier = Modifier.height(24.dp))
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text("Choose 2 Skills", style = MaterialTheme.typography.titleMedium)
-
-                heroClass.skills.forEach { skill ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
-                    ) {
-                        Checkbox(
-                            checked = skill in selectedSkills,
-                            onCheckedChange = { checked ->
-                                selectedSkills = when {
-                                    checked && selectedSkills.size < 2 -> selectedSkills + skill
-                                    !checked -> selectedSkills - skill
-                                    else -> selectedSkills // do not add more than 2
-                                }
-                            },
-                            enabled = skill in selectedSkills || selectedSkills.size < 2
-                        )
-                        Text(skill)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                if (heroClass.spells.isNotEmpty()) {
-                    Text("Choose One Spell", style = MaterialTheme.typography.titleMedium)
-
-                    val spellNames = heroClass.spells.map { it.name }
-                    DropdownSelector(
-                        label = "Select Spell",
-                        options = spellNames,
-                        selectedOption = selectedSpell?.name,
-                        onOptionSelected = { name ->
-                            selectedSpell = heroClass.spells.find { it.name == name }
-                        }
+            // Výber spellov (klikací zoznam textov + info button)
+            Text("Choose one starting spell:", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+            heroClass.spells.forEach { spell ->
+                val isSelected = spell == selectedSpell
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { selectedSpell = spell }
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = spell.name,
+                        modifier = Modifier.weight(1f),
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     )
-
-                    if (selectedSpell != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { showSpellDialog = true }) {
-                            Icon(Icons.Default.Info, contentDescription = "Spell Info")
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Info")
-                        }
+                    IconButton(onClick = { descriptionDialogSpell = spell }) {
+                        Icon(Icons.Default.Info, contentDescription = "Spell Info")
                     }
                 }
             }
 
-            if (showSpellDialog && selectedSpell != null) {
-                AlertDialog(
-                    onDismissRequest = { showSpellDialog = false },
-                    confirmButton = {
-                        TextButton(onClick = { showSpellDialog = false }) {
-                            Text("Close")
-                        }
-                    },
-                    title = {
-                        Text("${selectedSpell!!.name} (Lv ${selectedSpell!!.level})")
-                    },
-                    text = {
-                        Text("${selectedSpell!!.school} – ${selectedSpell!!.description}")
-                    }
-                )
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Confirm button aktivny len ked je vybranych dost skillov a spell
+            Button(
+                onClick = { onClassConfirmed(selectedSkills, selectedSpell) },
+                enabled = selectedSkills.size == heroClass.skillChoices && selectedSpell != null,
+                modifier = Modifier.align(Alignment.End)
+            ) {
+                Text("Confirm")
             }
         }
     }
-}
 
-@Composable
-fun DropdownSelector(
-    label: String,
-    options: List<String>,
-    selectedOption: String?,
-    onOptionSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(label)
-        Box {
-            OutlinedTextField(
-                value = selectedOption ?: "",
-                onValueChange = {},
+    // Dialog s detailom spellu
+    descriptionDialogSpell?.let { spell ->
+        Dialog(onDismissRequest = { descriptionDialogSpell = null }) {
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        modifier = Modifier.clickable { expanded = true }
-                    )
-                }
-            )
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                options.forEach {
-                    DropdownMenuItem(
-                        text = { Text(it) },
-                        onClick = {
-                            onOptionSelected(it)
-                            expanded = false
-                        }
-                    )
+                shape = RoundedCornerShape(12.dp),
+                tonalElevation = 8.dp
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(spell.name, style = MaterialTheme.typography.titleLarge)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("${spell.school} (Level ${spell.level})")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(spell.description, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { descriptionDialogSpell = null }, modifier = Modifier.align(Alignment.End)) {
+                        Text("Close")
+                    }
                 }
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewClassDescriptionPage() {
-    val cleric = HeroClassDesc.Wizard()
-    ClassDescriptionPage(
-        className = "Wizard",
-        heroClass = cleric,
-        imageRes = R.drawable.wizard_dnd_5e_1,
-        modifier = Modifier
+fun PreviewRogueClassDetailScreen() {
+    val rogueClass = HeroClassDesc.Rogue()
+    val imageRes = R.drawable.rogue_dnd_5e // zmeň podľa reálneho resource ID
+
+    HeroClassDetailScreen(
+        heroClass = rogueClass,
+        imageRes = imageRes,
+        onClassConfirmed = { skills, spell ->
+            println("Selected skills: $skills")
+            println("Selected spell: ${spell?.name}")
+        }
     )
 }
+
