@@ -45,7 +45,7 @@ sealed class HeroRaceDesc(
     val age: String,
     val size: RaceSize,
     val speed: String,
-    val fixedLanguages: List<String>, // Always spoken (1 or 2)
+    val fixedLanguages: String, // Always spoken (1 or 2)
     val availableLanguages: List<String> = emptyList(), // Only if player picks 1
     val baseStats: Map<RaceAttributes, Int>,
     val baseTraits: List<RaceTrait>,
@@ -60,7 +60,7 @@ sealed class HeroRaceDesc(
         age = "Ascended born mature at a similar rate humans do, and reaching adulthood in their late teens. They can live into the middle of their second century.",
         size = RaceSize.MEDIUM,
         speed = "30 ft. per turn",
-        fixedLanguages = listOf("Common"),
+        fixedLanguages = "Common",
         descriptionForLanguageChoice = "You can speak, read, and write Common and one regional language.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
         baseStats = mapOf(RaceAttributes.CHA to 2),
@@ -98,7 +98,7 @@ sealed class HeroRaceDesc(
         age = "Ascended born mature at a similar rate humans do, reaching adulthood in their late teens. They can live into the middle of their second century.",
         size = RaceSize.MEDIUM,
         speed = "30 ft. per turn",
-        fixedLanguages = listOf("Common"),
+        fixedLanguages = "Common",
         descriptionForLanguageChoice = "You can speak, read, and write Common and one regional language.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
         baseStats = mapOf(RaceAttributes.CHA to 2),
@@ -142,7 +142,7 @@ sealed class HeroRaceDesc(
         age = "Humans reach adulthood in their late teens and typically live less than 100 years.",
         size = RaceSize.MEDIUM,
         speed = "30 ft. per turn",
-        fixedLanguages = listOf("Common"),
+        fixedLanguages = "Common",
         descriptionForLanguageChoice = "You can speak, read, and write Common and one additional language of your choice.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
         baseStats = mapOf(
@@ -194,7 +194,7 @@ sealed class HeroRaceDesc(
         age = "Vastaya mature at a similar rate to humans, reaching adulthood in their late teens or early twenties. They can live between 150 to 200 years.",
         size = RaceSize.MEDIUM,
         speed = "30 ft. per turn",
-        fixedLanguages = listOf("Common"),
+        fixedLanguages = "Common",
         descriptionForLanguageChoice = "You can speak, read, and write Common and one regional language of your choice.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
         baseStats = emptyMap(), // Attribute bonuses are defined per subrace
@@ -296,7 +296,7 @@ sealed class HeroRaceDesc(
         age = "Yordles mature at a similar rate to humans, typically reaching adulthood around 40 years of age. They can live between 200 and 300 years.",
         size = RaceSize.SMALL,
         speed = "30 ft. per turn",
-        fixedLanguages = listOf("Common"),
+        fixedLanguages = "Common",
         descriptionForLanguageChoice = "You can speak, read, and write Common and one regional language of your choice.",
         availableLanguages = listOf("Ionian", "Ixtali", "NorthSpeak", "Noxian", "Shuriman", "Valerian"),
         baseStats = emptyMap(), // Attribute bonuses are defined per subrace
@@ -661,5 +661,46 @@ sealed class HeroClassDesc(
         )
     )
 
+    sealed class HeroRace(val name: String, val desc: HeroRaceDesc)
+    {
+        object AscendBorn: HeroRace("Ascendborn", HeroRaceDesc.AscendBorn())
+        object DarkinBorn: HeroRace("Darkinborn", HeroRaceDesc.DarkinBorn())
+        object Human: HeroRace("Human", HeroRaceDesc.Human())
+        object Vastaya: HeroRace("Vastaya", HeroRaceDesc.Vastaya())
+        object Yordle: HeroRace("Yordle", HeroRaceDesc.Yordle())
+
+        companion object
+        {
+            fun chooseRaceFromName(name: String): HeroRaceDesc? = when(name){
+                "Ascendborn" -> AscendBorn.desc
+                "Darkinborn" -> DarkinBorn.desc
+                "Human" -> Human.desc
+                "Vastaya" -> Vastaya.desc
+                "Yordle" -> Yordle.desc
+                else -> null
+            }
+        }
+    }
+
+    sealed class HeroClass(val name: String, val desc: HeroClassDesc)
+    {
+        object Rogue: HeroClass("Rogue", HeroClassDesc.Rogue())
+        object Paladin: HeroClass("Paladin", HeroClassDesc.Paladin())
+        object Cleric: HeroClass("Cleric", HeroClassDesc.Cleric())
+        object Ranger: HeroClass("Ranger", HeroClassDesc.Ranger())
+        object Wizard: HeroClass("Wizard", HeroClassDesc.Wizard())
+
+        companion object
+        {
+            fun chooseRaceFromName(name: String): HeroClassDesc? = when(name){
+                "Rogue" -> Rogue.desc
+                "Paladin" -> Paladin.desc
+                "Cleric" -> Cleric.desc
+                "Ranger" -> Ranger.desc
+                "Wizard" -> Wizard.desc
+                else -> null
+            }
+        }
+    }
 
 }

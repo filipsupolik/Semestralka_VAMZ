@@ -1,6 +1,7 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,12 +24,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
+import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
 import com.example.vamz_semestralka_hero_journal_dnd.data.races
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
-fun HeroListPage(whatToSelect: String,listOfDifferentTypes: List<Lists>,modifier: Modifier = Modifier){
+fun HeroListPage(
+    whatToSelect: String,listOfDifferentTypes: List<Lists>,
+    characterCreationViewModel: CharacterCreationViewModel = viewModel(),
+    modifier: Modifier = Modifier
+){
     Scaffold(
         topBar = { HeroListTopAppBar(
             whatToSelect = whatToSelect
@@ -42,9 +50,23 @@ fun HeroListPage(whatToSelect: String,listOfDifferentTypes: List<Lists>,modifier
         ) {
             items(listOfDifferentTypes) { item ->
                 when(item){
-                    is Lists.HeroRace -> HeroRaceItem(heroRace = item)
-                    is Lists.HeroClasses -> HeroClassItem(heroClass = item)
-                    is Lists.Region -> RegionItem(region = item)
+                    is Lists.HeroRace -> HeroRaceItem(
+                        heroRace = item,
+                        onClick = {
+                            characterCreationViewModel.setHeroRace(
+                                HeroClassDesc.HeroRace.chooseRaceFromName(item.raceName)
+                            )
+                        })
+                    is Lists.HeroClasses -> HeroClassItem(
+                        heroClass = item,
+                        onClick = {
+                            characterCreationViewModel.setHeroClass(
+                                HeroClassDesc.HeroClass.chooseRaceFromName(item.className)
+                            )
+                        })
+                    is Lists.Region -> RegionItem(
+                        region = item,
+                        onClick = {})
                 }
             }
         }
@@ -67,9 +89,13 @@ fun HeroListTopAppBar(whatToSelect: String,modifier: Modifier = Modifier){
 }
 
 @Composable
-fun RegionItem(region: Lists.Region, modifier: Modifier = Modifier) {
+fun RegionItem(region: Lists.Region, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -93,9 +119,13 @@ fun RegionItem(region: Lists.Region, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier) {
+fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable{
+                onClick()
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -119,9 +149,13 @@ fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HeroRaceItem(heroRace: Lists.HeroRace, modifier: Modifier = Modifier) {
+fun HeroRaceItem(heroRace: Lists.HeroRace, onClick:() -> Unit,modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

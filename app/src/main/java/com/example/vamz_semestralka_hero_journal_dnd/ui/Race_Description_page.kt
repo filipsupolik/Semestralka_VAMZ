@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,20 +37,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
-fun Description_Page(description: String, race: HeroRaceDesc,imageRes: Int, modifier: Modifier)
+fun Description_Page(
+    description: String,
+    race: HeroRaceDesc,
+    imageRes: Int,
+    characterCreationViewModel: CharacterCreationViewModel = viewModel(),
+    modifier: Modifier)
 {
+    val characterState by characterCreationViewModel.uiState.collectAsState()
     Scaffold (
         topBar = {
             CharacterPageTopAppBar(description,modifier)
         }
     ) { innerPadding ->
-        var selectedSubrace by remember { mutableStateOf<SubRace?>(null) }
-        var selectedLanguage by remember { mutableStateOf<String?>(null) }
+
         Box(
             modifier = Modifier
                 .fillMaxSize().
@@ -89,16 +97,16 @@ fun Description_Page(description: String, race: HeroRaceDesc,imageRes: Int, modi
                 Text("Size: ${race.size}")
                 Text("Abilities: ${race.baseStats.entries.joinToString { "${it.key} +${it.value}" }}")
                 Text("Languages: ${(race.fixedLanguages)}")
+                DropdownSelector(
+                    label = "Choose a language",
+                    description = race.descriptionCharacterRace,
+                    options = race.availableLanguages.filterNot { it in race.fixedLanguages },
+                    selectedOption = characterState.selectedLanguage,
+                    onOptionSelected = { language->
+                        characterCreationViewModel.setSelectedLanguage(language)
+                    }
+                )
 
-                if (race.availableLanguages.size > race.fixedLanguages.size) {
-                    DropdownSelector(
-                        label = "Choose a language",
-                        description = race.descriptionCharacterRace,
-                        options = race.availableLanguages.filterNot { it in race.fixedLanguages },
-                        selectedOption = selectedLanguage,
-                        onOptionSelected = { selectedLanguage = it }
-                    )
-                }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Traits", style = MaterialTheme.typography.titleMedium)
@@ -111,14 +119,16 @@ fun Description_Page(description: String, race: HeroRaceDesc,imageRes: Int, modi
                     DropdownSelector(
                         label = "Choose a subrace",
                         options = race.subraces.map { it.name },
-                        selectedOption = selectedSubrace?.name,
+                        selectedOption = characterState.selectedSubRace?.name,
                         onOptionSelected = { name ->
-                            selectedSubrace = race.subraces.find { it.name == name }
+                            characterCreationViewModel.setSelectedSubrace(
+                                race.subraces.find { it.name == name }
+                            )
                         },
                         description = race.descriptionCharacterRace
                     )
 
-                    SubraceSection(selectedSubrace = selectedSubrace)
+                    SubraceSection(selectedSubrace = characterState.selectedSubRace)
                 }
             }
         }
@@ -155,7 +165,7 @@ fun DropdownSelector(
         Box {
             OutlinedTextField(
                 value = selectedOption ?: "",
-                onValueChange = {},
+                onValueChange = onOptionSelected,
                 modifier = Modifier.fillMaxWidth(),
                 readOnly = true,
                 trailingIcon = {

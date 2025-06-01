@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,17 +33,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeroClassDetailScreen(
     heroClass: HeroClassDesc,
     onClassConfirmed: (selectedSkills: List<String>, selectedSpell: Spell?) -> Unit,
-    imageRes: Int
+    imageRes: Int,
+    characterCreationViewModel: CharacterCreationViewModel = viewModel()
 ) {
+    val characterUIState by characterCreationViewModel.uiState.collectAsState()
     var selectedSkills by remember { mutableStateOf<List<String>>(emptyList()) }
     var selectedSpell by remember { mutableStateOf<Spell?>(null) }
     var descriptionDialogSpell by remember { mutableStateOf<Spell?>(null) }
@@ -93,17 +98,17 @@ fun HeroClassDetailScreen(
             Text("Choose ${heroClass.skillChoices} skills:", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             heroClass.skills.forEach { skill ->
-                val isSelected = skill in selectedSkills
+                val isSelected = skill in characterUIState.selectedSkill
                 Text(
                     text = skill,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            selectedSkills = if (isSelected) {
+                            characterCreationViewModel.setSelectedSkill(if (isSelected) {
                                 selectedSkills - skill
                             } else if (selectedSkills.size < heroClass.skillChoices) {
                                 selectedSkills + skill
-                            } else selectedSkills
+                            } else selectedSkills)
                         }
                         .padding(12.dp),
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface

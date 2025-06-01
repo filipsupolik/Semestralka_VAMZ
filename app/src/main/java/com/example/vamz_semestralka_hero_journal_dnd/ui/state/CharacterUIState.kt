@@ -13,7 +13,8 @@ data class CharacterUIState(
 
     val selectedSpells: List<Spell> = emptyList(),
     val selectedSkill: List<String> = emptyList(),
-    val selectedLanguages: List<String> = emptyList(),
+    val selectedLanguage: String = "",
+    val allLanguages: List<String> = emptyList(),
     val selectedSubRace: SubRace? = null,
 
     val raceStats: MutableMap<RaceAttributes, Int> = mutableMapOf(
