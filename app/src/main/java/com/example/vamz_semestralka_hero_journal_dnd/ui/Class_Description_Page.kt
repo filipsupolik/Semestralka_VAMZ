@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -10,12 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,11 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
@@ -43,13 +49,18 @@ import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationV
 @Composable
 fun HeroClassDetailScreen(
     heroClass: HeroClassDesc,
-    onClassConfirmed: (selectedSkills: List<String>, selectedSpell: Spell?) -> Unit,
+    onUpdateSkill: (selectedSkill: String) -> Unit,
     imageRes: Int,
     characterCreationViewModel: CharacterCreationViewModel = viewModel()
 ) {
     val characterUIState by characterCreationViewModel.uiState.collectAsState()
-    var selectedSkills by remember { mutableStateOf<List<String>>(emptyList()) }
-    var selectedSpell by remember { mutableStateOf<Spell?>(null) }
+    var mExpanded by remember { mutableStateOf(false) }
+
+    // Up Icon when expanded and down icon when collapsed
+    val icon = if (mExpanded)
+        Icons.Filled.KeyboardArrowUp
+    else
+        Icons.Filled.KeyboardArrowDown
     var descriptionDialogSpell by remember { mutableStateOf<Spell?>(null) }
 
     Scaffold(
@@ -96,6 +107,42 @@ fun HeroClassDetailScreen(
 
             // Výber skillov (zoznam, klikací text, max podľa skillChoices)
             Text("Choose ${heroClass.skillChoices} skills:", style = MaterialTheme.typography.titleMedium)
+
+            Column(Modifier.padding(20.dp)) {
+
+                // Create an Outlined Text Field
+                // with icon and not expanded
+                OutlinedTextField(
+                    value = characterUIState.selectedSkill,
+                    onValueChange = onUpdateSkill,
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    label = {Text("Label")},
+                    trailingIcon = {
+                        Icon(icon,"Dropdown menu arrow",
+                            Modifier.clickable { mExpanded = !mExpanded })
+                    }
+                )
+
+                // Create a drop-down menu with list of cities,
+                // when clicked, set the Text Field text as the city selected
+                DropdownMenu(
+                    expanded = mExpanded,
+                    onDismissRequest = { mExpanded = false },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    characterUIState.characterClass?.skills?.forEach { label ->
+                        DropdownMenuItem(
+                            text = { Text(text = label) },
+                            onClick = {
+                                characterCreationViewModel.setSelectedSkill(label)
+                                mExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             heroClass.skills.forEach { skill ->
                 val isSelected = skill in characterUIState.selectedSkill
@@ -104,11 +151,10 @@ fun HeroClassDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            characterCreationViewModel.setSelectedSkill(if (isSelected) {
-                                selectedSkills - skill
-                            } else if (selectedSkills.size < heroClass.skillChoices) {
-                                selectedSkills + skill
-                            } else selectedSkills)
+                            if (isSelected)
+                            {
+
+                            }
                         }
                         .padding(12.dp),
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
@@ -119,13 +165,39 @@ fun HeroClassDetailScreen(
 
             // Výber spellov (klikací zoznam textov + info button)
             Text("Choose one starting spell:", style = MaterialTheme.typography.titleMedium)
+            heroClass.spells.forEach { spell ->
+                val isSelected = spell == characterUIState.selectedSpell
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp)
+                        .clickable {
+                            characterCreationViewModel.setStartingSpell(spell)
+                        },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                        else MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(text = spell.name, modifier = Modifier.weight(1f))
+                        IconButton(onClick = { descriptionDialogSpell = spell }) {
+                            Icon(Icons.Default.Info, contentDescription = "Spell Info")
+                        }
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             heroClass.spells.forEach { spell ->
-                val isSelected = spell == selectedSpell
+                val isSelected = spell == characterUIState.selectedSpell
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { selectedSpell = spell }
+                        .clickable { characterCreationViewModel.setStartingSpell(spell) }
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -142,14 +214,6 @@ fun HeroClassDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Confirm button aktivny len ked je vybranych dost skillov a spell
-            Button(
-                onClick = { onClassConfirmed(selectedSkills, selectedSpell) },
-                enabled = selectedSkills.size == heroClass.skillChoices && selectedSpell != null,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Confirm")
-            }
         }
     }
 
@@ -175,22 +239,5 @@ fun HeroClassDetailScreen(
             }
         }
     }
-}
-
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewRogueClassDetailScreen() {
-    val rogueClass = HeroClassDesc.Rogue()
-    val imageRes = R.drawable.rogue_dnd_5e // zmeň podľa reálneho resource ID
-
-    HeroClassDetailScreen(
-        heroClass = rogueClass,
-        imageRes = imageRes,
-        onClassConfirmed = { skills, spell ->
-            println("Selected skills: $skills")
-            println("Selected spell: ${spell?.name}")
-        }
-    )
 }
 

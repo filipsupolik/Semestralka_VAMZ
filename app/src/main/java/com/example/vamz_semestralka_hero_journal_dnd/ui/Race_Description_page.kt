@@ -171,7 +171,7 @@ fun DropdownSelector(
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = null,
+                        contentDescription = "Show options arrow",
                         Modifier.clickable { expanded = true }
                     )
                 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
+import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -66,7 +67,6 @@ class CharacterCreationViewModel: ViewModel() {
                 )
             )
         }
-
     }
 
     fun setSelectedLanguage(language: String)
@@ -87,10 +87,27 @@ class CharacterCreationViewModel: ViewModel() {
         }
     }
 
-    fun setSelectedSkill(skills: List<String>) {
+    fun setSelectedSkill(skills: String) {
         _uiState.update { currentState ->
             currentState.copy(
                 selectedSkill = skills
+            )
+        }
+    }
+
+    fun setAllSkillsForHero(skill: String)
+    {
+        _uiState.update { currentState ->
+            currentState.copy(
+                allSkillsOfHero = currentState.allSkillsOfHero.plus(skill)
+            )
+        }
+    }
+
+    fun setStartingSpell(spell: Spell) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                selectedSpell = spell
             )
         }
     }
