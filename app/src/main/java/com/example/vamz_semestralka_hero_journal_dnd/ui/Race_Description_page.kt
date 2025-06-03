@@ -46,7 +46,7 @@ import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationV
 @Composable
 fun Description_Page(
     description: String,
-    race: HeroRaceDesc,
+    race: HeroRaceDesc?,
     imageRes: Int,
     characterCreationViewModel: CharacterCreationViewModel = viewModel(),
     modifier: Modifier)
@@ -81,44 +81,46 @@ fun Description_Page(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = race.name,
+                    text = race?.name ?: "",
                     style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
                 Text(
-                    text = race.descriptionCharacterRace,
+                    text = race?.descriptionCharacterRace ?: "",
                     style = MaterialTheme.typography.bodyMedium
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Speed: ${race.speed}")
-                Text("Size: ${race.size}")
-                Text("Abilities: ${race.baseStats.entries.joinToString { "${it.key} +${it.value}" }}")
-                Text("Languages: ${(race.fixedLanguages)}")
-                DropdownSelector(
-                    label = "Choose a language",
-                    description = race.descriptionCharacterRace,
-                    options = race.availableLanguages.filterNot { it in race.fixedLanguages },
-                    selectedOption = characterState.selectedLanguage,
-                    onOptionSelected = { language->
-                        characterCreationViewModel.setSelectedLanguage(language)
-                    }
-                )
+                Text("Speed: ${race?.speed}")
+                Text("Size: ${race?.size}")
+                Text("Abilities: ${race?.baseStats?.entries?.joinToString { "${it.key} +${it.value}" }}")
+                Text("Languages: ${(race?.fixedLanguages)}")
+                race?.availableLanguages?.let {
+                    DropdownSelector(
+                        label = "Choose a language",
+                        description = race?.descriptionCharacterRace ?: "",
+                        options = it.filterNot { it in race.fixedLanguages },
+                        selectedOption = characterState.selectedLanguage,
+                        onOptionSelected = { language->
+                            characterCreationViewModel.setSelectedLanguage(language)
+                        }
+                    )
+                }
 
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Traits", style = MaterialTheme.typography.titleMedium)
 
-                race.baseTraits.forEach {
+                race?.baseTraits?.forEach {
                     TraitCard(name = it.name, description = it.desc)
                 }
 
-                if (race.subraces.isNotEmpty()) {
+                if (race?.subraces?.isNotEmpty() == true) {
                     DropdownSelector(
                         label = "Choose a subrace",
-                        options = race.subraces.map { it.name },
+                        options = race?.subraces.map { it.name },
                         selectedOption = characterState.selectedSubRace?.name,
                         onOptionSelected = { name ->
                             characterCreationViewModel.setSelectedSubrace(

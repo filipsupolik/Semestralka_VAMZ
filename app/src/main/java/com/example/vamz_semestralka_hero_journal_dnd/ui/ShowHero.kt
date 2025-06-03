@@ -26,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,21 +36,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
-fun CharacterStatsScreen() {
+fun CharacterStatsScreen(name: String, characterCreationViewModel: CharacterCreationViewModel) {
+    val characterState by characterCreationViewModel.uiState.collectAsState()
 
     val characterInfo = mapOf(
-        "Name" to "Grizzle McTinker",
-        "Region" to "Piltover",
-        "Class" to "Artificer",
-        "Race" to "Yordle"
+        "Name" to characterState.playerName,
+        "Region" to characterState.selectedRegion,
+        "Class" to characterState.characterClass?.name,
+        "Race" to characterState.characterRace.name
     )
 
     Scaffold(
         topBar = {
-          ShowHeroTopAppBar()
+          ShowHeroTopAppBar(characterInfo)
         },
     )
     { innerPadding ->
@@ -58,11 +63,12 @@ fun CharacterStatsScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowHeroTopAppBar() {
+fun ShowHeroTopAppBar(characterInfo: Map<String, String?>) {
     CenterAlignedTopAppBar(
         title = { Text("Stats") },
         navigationIcon = {
             IconButton(onClick = {
+                ShowMenu(characterInfo)
             }) {
                 Icon(Icons.Default.Menu, contentDescription = "Menu")
             }
@@ -71,9 +77,9 @@ fun ShowHeroTopAppBar() {
 }
 
 @Composable
-fun ShowMenu(characterInfo: MutableMap<String, String>) {
+fun ShowMenu(characterInfo: Map<String, String?>) {
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Character Info", style = MaterialTheme.typography.headlineSmall)
+        Text(text = characterInfo.get("Name") ?: "", style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.height(8.dp))
         characterInfo.forEach { (label, value) ->
             Text("$label: $value", style = MaterialTheme.typography.bodySmall)

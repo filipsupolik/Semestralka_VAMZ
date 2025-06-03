@@ -7,7 +7,7 @@ import com.example.vamz_semestralka_hero_journal_dnd.R
 sealed class Lists{
     data class Region(
         @DrawableRes val imageResourceId: Int,
-        val regionName: String
+        val regionName: String,
     ):Lists()
     data class HeroClasses(
         @DrawableRes val imageResourceId: Int,
@@ -56,59 +56,57 @@ val characters = listOf(
 )
 
 val regions = listOf(
+
     Lists.Region(
         imageResourceId = R.drawable.bandle_city_crest_icon,
-        regionName = "Bandle City"
+        regionName = "Bandle City",
     ),
     Lists.Region(
         imageResourceId = R.drawable.bilgewater_crest_icon,
-        regionName = "Bilgewater"
+        regionName = "Bilgewater",
     ),
     Lists.Region(
         imageResourceId = R.drawable.demacia_crest_icon,
-        regionName = "Demacia"
+        regionName = "Demacia",
     ),
     Lists.Region(
         imageResourceId = R.drawable.ionia_crest_icon,
-        regionName = "Ionia"
+        regionName = "Ionia",
     ),
     Lists.Region(
         imageResourceId = R.drawable.ixtal_crest_icon,
-        regionName = "Ixtal"
+        regionName = "Ixtal",
     ),
     Lists.Region(
         imageResourceId = R.drawable.piltover_crest,
-        regionName = "Piltover"
+        regionName = "Piltover & Zaun",
     ),
     Lists.Region(
         imageResourceId = R.drawable.shadow_isles_crest_icon,
-        regionName = "Shadow Isles"
+        regionName = "Shadow Isles",
     ),
     Lists.Region(
         imageResourceId = R.drawable.shurima_crest_icon,
-        regionName = "Shurima"
+        regionName = "Shurima",
     ),
     Lists.Region(
         imageResourceId = R.drawable.mount_targon_crest_icon,
-        regionName = "Targon"
+        regionName = "Targon",
     ),
     Lists.Region(
         imageResourceId = R.drawable.noxus_crest_icon,
-        regionName = "Noxus"
+        regionName = "Noxus",
     ),
     Lists.Region(
         imageResourceId = R.drawable.freljord_crest_icon,
-        regionName = "The Freljord"
+        regionName = "The Freljord",
     ),
     Lists.Region(
         imageResourceId = R.drawable.void_crest_icon,
-        regionName = "The Void"
-    ),
-    Lists.Region(
-        imageResourceId = R.drawable.zaun_crest_icon,
-        regionName = "Zaun"
+        regionName = "The Void",
     )
 )
+
 val classes = listOf(
     Lists.HeroClasses(
         imageResourceId = 0,

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
+import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -108,6 +109,22 @@ class CharacterCreationViewModel: ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 selectedSpell = spell
+            )
+        }
+    }
+
+    fun setRegion(name: String) {
+        _uiState.update {currentState->
+            currentState.copy(
+                selectedRegion = Region.chooseRaceFromName(name)
+            )
+        }
+    }
+
+    fun setSelectedRace(name: String){
+        _uiState.update {currentState->
+            currentState.copy(
+                selectedRace =
             )
         }
     }

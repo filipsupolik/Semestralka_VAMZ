@@ -57,6 +57,7 @@ fun AbilityScreen(
 ) {
 
     val statsPageState by completeCharacterCreationViewModel.uiState.collectAsState()
+    var selectedMethod: StatMethod by remember { mutableStateOf(StatMethod.ROLL) }
     val baseValues = remember { mutableStateMapOf<String, Int>().apply { stats.forEach { this[it] = 3 } } }
 Scaffold(
     topBar = {

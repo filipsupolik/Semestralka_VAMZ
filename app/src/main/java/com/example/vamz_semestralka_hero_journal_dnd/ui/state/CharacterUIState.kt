@@ -3,6 +3,7 @@ package com.example.vamz_semestralka_hero_journal_dnd.ui.state
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
+import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import com.example.vamz_semestralka_hero_journal_dnd.ui.StatMethod
@@ -17,7 +18,9 @@ data class CharacterUIState(
     val selectedSkill: String = "",
     val selectedSpell: Spell? = null,
     val allLanguages: List<String> = emptyList(),
+    val selectedRace: HeroRaceDesc? = null,
     val selectedSubRace: SubRace? = null,
+    val selectedRegion: Region? = null,
 
     val selectedMethodStatsCounting: StatMethod = StatMethod.ROLL,
     val remainingPoints: Int = 27,

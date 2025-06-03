@@ -34,7 +34,7 @@ import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationV
 @Composable
 fun HeroListPage(
     whatToSelect: String,listOfDifferentTypes: List<Lists>,
-    characterCreationViewModel: CharacterCreationViewModel = viewModel(),
+    characterCreationViewModel: CharacterCreationViewModel,
     modifier: Modifier = Modifier
 ){
     Scaffold(
@@ -66,7 +66,11 @@ fun HeroListPage(
                         })
                     is Lists.Region -> RegionItem(
                         region = item,
-                        onClick = {})
+                        onClick = {
+                            characterCreationViewModel.setRegion(
+                                item.regionName
+                            )
+                        })
                 }
             }
         }
