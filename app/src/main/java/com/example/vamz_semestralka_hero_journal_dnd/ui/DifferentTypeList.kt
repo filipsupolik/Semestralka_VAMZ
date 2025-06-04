@@ -28,7 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
-import com.example.vamz_semestralka_hero_journal_dnd.data.races
+import com.example.vamz_semestralka_hero_journal_dnd.data.classes
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
@@ -185,5 +185,5 @@ fun HeroRaceItem(heroRace: Lists.HeroRace, onClick:() -> Unit,modifier: Modifier
 @Preview
 @Composable
 fun HeroListPreview() {
-    HeroListPage("race",listOfDifferentTypes = races)
+    HeroListPage("class",listOfDifferentTypes = classes, viewModel())
 }

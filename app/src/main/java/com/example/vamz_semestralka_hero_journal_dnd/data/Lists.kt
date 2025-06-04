@@ -28,32 +28,7 @@ data class HeroProfile(
     val lvl: Int
 )
 
-val characters = listOf(
-    HeroProfile(
-        imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
-        name = "Jinx",
-        descriptionCharacterRace = "Human",
-        descriptionCharacterClass = "Hunter",
-        lvlDescription = R.string.level,
-        lvl = 1
-    ),
-    HeroProfile(
-        imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
-        name = "Jhin",
-        descriptionCharacterRace = "Human",
-        descriptionCharacterClass = "Hunter",
-        lvlDescription = R.string.level,
-        lvl = 1
-    ),
-    HeroProfile(
-        imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
-        name = "Jax",
-        descriptionCharacterRace = "Human",
-        descriptionCharacterClass = "Monk",
-        lvlDescription = R.string.level,
-        lvl = 1
-    ),
-)
+val characters: List<HeroProfile> = listOf()
 
 val regions = listOf(
 
@@ -109,23 +84,23 @@ val regions = listOf(
 
 val classes = listOf(
     Lists.HeroClasses(
-        imageResourceId = 0,
+        imageResourceId = R.drawable.dnd_cleric_5e_subclass,
         className = "Cleric"
     ),
     Lists.HeroClasses(
-        imageResourceId = 0,
+        imageResourceId = R.drawable.dnd_paladin_5e_dwarf,
         className = "Paladin"
     ),
     Lists.HeroClasses(
-        imageResourceId = 0,
+        imageResourceId = R.drawable.ranger_dnd_5e_1,
         className = "Ranger"
     ),
     Lists.HeroClasses(
-        imageResourceId = 0,
+        imageResourceId = R.drawable.rogue_dnd_5e,
         className = "Rogue"
     ),
     Lists.HeroClasses(
-        imageResourceId = 0,
+        imageResourceId = R.drawable.wizard_dnd_5e_1,
         className = "Wizard"
     )
 )

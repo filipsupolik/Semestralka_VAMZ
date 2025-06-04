@@ -47,14 +47,12 @@ import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationV
 fun Description_Page(
     description: String,
     race: HeroRaceDesc?,
-    imageRes: Int,
-    characterCreationViewModel: CharacterCreationViewModel = viewModel(),
-    modifier: Modifier)
+    characterCreationViewModel: CharacterCreationViewModel)
 {
     val characterState by characterCreationViewModel.uiState.collectAsState()
     Scaffold (
         topBar = {
-            CharacterPageTopAppBar(description,modifier)
+            CharacterPageTopAppBar(description,modifier = Modifier)
         }
     ) { innerPadding ->
 
@@ -64,14 +62,16 @@ fun Description_Page(
                 padding(innerPadding)
         )
         {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-            )
+            characterState.characterClass?.imageRes?.let { painterResource(id = it) }?.let {
+                Image(
+                    painter = it,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                )
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -120,10 +120,10 @@ fun Description_Page(
                 if (race?.subraces?.isNotEmpty() == true) {
                     DropdownSelector(
                         label = "Choose a subrace",
-                        options = race?.subraces.map { it.name },
+                        options = race.subraces.map { it.name },
                         selectedOption = characterState.selectedSubRace?.name,
                         onOptionSelected = { name ->
-                            characterCreationViewModel.setSelectedSubrace(
+                            characterCreationViewModel.setPlayerSubRace(
                                 race.subraces.find { it.name == name }
                             )
                         },
@@ -244,7 +244,6 @@ fun PreviewDescriptionPage() {
     Description_Page(
         description = "Yorlde",
         race = previewRace,
-        imageRes = R.drawable.teemo,
-        modifier = Modifier
+        characterCreationViewModel = viewModel()
     )
 }

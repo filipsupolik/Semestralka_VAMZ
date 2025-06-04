@@ -1,5 +1,7 @@
 package com.example.vamz_semestralka_hero_journal_dnd.data
 
+import com.example.vamz_semestralka_hero_journal_dnd.R
+
 enum class RaceSize{
     SMALL, MEDIUM, LARGE
 }
@@ -23,14 +25,7 @@ sealed class RaceTrait(
     val name: String,
     val desc: String
 ) {
-    class SimpleTraits(name: String, desc: String): RaceTrait(name, desc)
-    class ChoiceTrats(
-        name: String,
-        desc: String,
-        val options: List<String>,
-        val selectedOption: String? = null
-    ): RaceTrait(name, desc)
-}
+    class SimpleTraits(name: String, desc: String): RaceTrait(name, desc) }
 
 data class Spell(
     val name: String,
@@ -45,12 +40,13 @@ sealed class HeroRaceDesc(
     val age: String,
     val size: RaceSize,
     val speed: String,
-    val fixedLanguages: String, // Always spoken (1 or 2)
-    val availableLanguages: List<String> = emptyList(), // Only if player picks 1
+    val fixedLanguages: String,
+    val availableLanguages: List<String> = emptyList(),
     val baseStats: Map<RaceAttributes, Int>,
     val baseTraits: List<RaceTrait>,
     val subraces: List<SubRace> = emptyList(),
-    descriptionForLanguageChoice: String
+    val descriptionForLanguageChoice: String,
+    val imageRes: Int,
 ){
     class AscendBorn: HeroRaceDesc(
         name = "Ascend-Born",
@@ -89,7 +85,8 @@ sealed class HeroRaceDesc(
                             "Once you use this trait, you can't use it again until you finish a long rest.")
                 )
             )
-        )
+        ),
+        imageRes = R.drawable.azir
     )
 
     class DarkinBorn : HeroRaceDesc(
@@ -133,7 +130,8 @@ sealed class HeroRaceDesc(
                     )
                 )
             )
-        )
+        ),
+        imageRes = R.drawable.aatrox
     )
 
     class Human: HeroRaceDesc(
@@ -185,7 +183,8 @@ sealed class HeroRaceDesc(
                     )
                 )
             )
-        )
+        ),
+        imageRes = R.drawable.fiora
     )
 
     class Vastaya : HeroRaceDesc(
@@ -287,7 +286,8 @@ sealed class HeroRaceDesc(
                     )
                 )
             )
-        )
+        ),
+        imageRes = R.drawable.xayah
     )
 
     class Yordle : HeroRaceDesc(
@@ -369,7 +369,8 @@ sealed class HeroRaceDesc(
                     )
                 )
             )
-        )
+        ),
+        imageRes = R.drawable.teemo
     )
 
 }
@@ -383,7 +384,8 @@ sealed class HeroClassDesc(
     val armor: String,
     val weapon: String,
     val spells: List<Spell>,
-    val skillChoices: Int = 2
+    val skillChoices: Int = 2,
+    val imageRes: Int
 )
 {
     class Cleric: HeroClassDesc(
@@ -431,7 +433,8 @@ sealed class HeroClassDesc(
                 school = "Evocation",
                 description = "Up to six creatures of your choice that you can see within range each regain hit points equal to 2d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs."
             )
-        )
+        ),
+        imageRes = R.drawable.dnd_cleric_5e_subclass
     )
 
     class Paladin : HeroClassDesc(
@@ -486,7 +489,8 @@ sealed class HeroClassDesc(
                 school = "Evocation",
                 description = "The next time you hit a creature with a melee weapon attack, it takes an extra 1d6 psychic damage and must succeed on a Wisdom saving throw or be frightened until the spell ends."
             )
-        )
+        ),
+        imageRes = R.drawable.dnd_paladin_5e_dwarf
     )
 
     class Ranger : HeroClassDesc(
@@ -543,7 +547,8 @@ sealed class HeroClassDesc(
                 school = "Divination",
                 description = "Sense the presence of magic within 30 feet of you for up to 10 minutes."
             )
-        )
+        ),
+        imageRes = R.drawable.ranger_dnd_5e_1
     )
 
     class Rogue : HeroClassDesc(
@@ -603,7 +608,8 @@ sealed class HeroClassDesc(
                 school = "Abjuration",
                 description = "As a reaction, gain +5 AC until the start of your next turn. Negates triggering Magic Missile."
             )
-        )
+        ),
+        imageRes = R.drawable.rogue_dnd_5e
     )
 
     class Wizard : HeroClassDesc(
@@ -658,7 +664,8 @@ sealed class HeroClassDesc(
                 school = "Transmutation",
                 description = "Reakcia, ktorá spomalí pád až piatich tvorov na 60 stôp za kolo, čím zabráni poškodeniu z pádu."
             )
-        )
+        ),
+        imageRes = R.drawable.wizard_dnd_5e_1
     )
 
     sealed class HeroRace(val name: String, val desc: HeroRaceDesc)

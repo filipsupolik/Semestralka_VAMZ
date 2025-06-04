@@ -56,59 +56,28 @@ class CharacterCreationViewModel: ViewModel() {
         }
     }
 
-    fun applyHeroRaceValueSetting(subRace: SubRace?, language: String)
-    {
-        calculateBAseAttribute(_uiState.value.characterRace, subRace)
-        _uiState.update { currentPlayer ->
-            currentPlayer.copy(
-                selectedSubRace = subRace,
-                selectedLanguage = language,
-                allLanguages = listOf(
-                    currentPlayer.characterRace.fixedLanguages, language
-                )
-            )
-        }
-    }
-
     fun setSelectedLanguage(language: String)
     {
         _uiState.update { currentPlayer ->
             currentPlayer.copy(
-                selectedLanguage = language
+                playerLanguages = currentPlayer.playerLanguages.plus(language)
             )
         }
     }
 
-    fun setSelectedSubrace(subrace: SubRace?)
-    {
-        _uiState.update { currentPalyer ->
-            currentPalyer.copy(
-                selectedSubRace = subrace
+    fun setStartingSpell(spell: String) {
+        _uiState.update { currentState ->
+            val findSpell = currentState.characterClass?.spells?.find { it.name == spell }
+            currentState.copy(
+                playerSpell = findSpell
             )
         }
     }
 
-    fun setSelectedSkill(skills: String) {
+    fun setPlayerSubRace(subRace: SubRace?){
         _uiState.update { currentState ->
             currentState.copy(
-                selectedSkill = skills
-            )
-        }
-    }
-
-    fun setAllSkillsForHero(skill: String)
-    {
-        _uiState.update { currentState ->
-            currentState.copy(
-                allSkillsOfHero = currentState.allSkillsOfHero.plus(skill)
-            )
-        }
-    }
-
-    fun setStartingSpell(spell: Spell) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                selectedSpell = spell
+                characterSubRace = subRace
             )
         }
     }
@@ -116,15 +85,45 @@ class CharacterCreationViewModel: ViewModel() {
     fun setRegion(name: String) {
         _uiState.update {currentState->
             currentState.copy(
-                selectedRegion = Region.chooseRaceFromName(name)
+                playerRegion = Region.chooseRaceFromName(name)
             )
         }
     }
 
-    fun setSelectedRace(name: String){
-        _uiState.update {currentState->
+    fun resetRegion() {
+        _uiState.update { currentUiState->
+            currentUiState.copy(
+                playerRegion = null
+            )
+        }
+    }
+
+    fun setPlayerSkill(label: String) {
+        _uiState.update { currentState ->
+            val (first, second) = currentState.playerSkill
+
+            val updatedSkill = when {
+                first.isEmpty() -> Pair(label, second)
+                second.isEmpty() && label != first -> Pair(first, label)
+                else -> Pair(first, second)
+            }
+
+            currentState.copy(playerSkill = updatedSkill)
+        }
+    }
+
+    fun setPlayerSpell(spell: Spell) {
+        _uiState.update { currentUiState->
+            currentUiState.copy(
+                playerSpell = spell
+            )
+        }
+    }
+
+    fun setRemainingStatsPoints(cost: Int) {
+        _uiState.update { currentState->
             currentState.copy(
-                selectedRace =
+                remainingPoints = currentState.remainingPoints - cost
             )
         }
     }

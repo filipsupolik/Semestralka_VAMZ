@@ -1,16 +1,19 @@
 package com.example.vamz_semestralka_hero_journal_dnd.navigation
 
+import HeroClassDetailScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
-import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
+import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
+import com.example.vamz_semestralka_hero_journal_dnd.data.classes
 import com.example.vamz_semestralka_hero_journal_dnd.data.races
 import com.example.vamz_semestralka_hero_journal_dnd.data.regions
+import com.example.vamz_semestralka_hero_journal_dnd.ui.AbilityScreen
 import com.example.vamz_semestralka_hero_journal_dnd.ui.CharacterNameChoice
 import com.example.vamz_semestralka_hero_journal_dnd.ui.CharacterPage
 import com.example.vamz_semestralka_hero_journal_dnd.ui.CharacterStatsScreen
@@ -47,9 +50,12 @@ sealed class Screen(val route: String) {
         }
     }
 
-    object
-
-    class ClassSelection(className: String) : Screen("class_selection/$className")
+    object ClassSelection : Screen("class_selection")
+    object ClassPage: Screen("class_page/{class_name}") {
+        fun createRoute(className: String): String {
+            return "class_page/$className"
+        }
+    }
 
     object Summary : Screen("summary")
 
@@ -99,7 +105,7 @@ fun NavigationBetweenScreens(navController: NavHostController, )
         }
 
         composable(route = Screen.RegionPage.route){
-            RegionPage()
+            RegionPage(viewModel)
         }
 
         composable(route = Screen.RaceSelection.route){
@@ -110,12 +116,32 @@ fun NavigationBetweenScreens(navController: NavHostController, )
             )
         }
 
-        composable(route = Screen.RegionPage.route){
+        composable(route = Screen.RacePage.route){
             Description_Page(
-                description = characterUIState.selectedRace?.descriptionCharacterRace ?: "",
-                race = characterUIState.selectedRace,
-                imageRes =
+                description = characterUIState.characterRace.descriptionCharacterRace,
+                race = characterUIState.characterRace,
+                characterCreationViewModel = viewModel
             )
+        }
+
+        composable(route = Screen.ClassSelection.route){
+            HeroListPage(
+                whatToSelect = "Class",
+                listOfDifferentTypes = classes,
+                characterCreationViewModel = viewModel
+            )
+        }
+
+        composable(route = Screen.ClassPage.route){
+            HeroClassDetailScreen(
+                heroClass = characterUIState.characterClass ?: HeroClassDesc.Rogue(),
+                imageRes = characterUIState.characterClass?.imageRes,
+                characterCreationViewModel = viewModel
+            )
+        }
+
+        composable(route = Screen.Summary.route){
+            AbilityScreen(viewModel, modifier = Modifier)
         }
     }
 }

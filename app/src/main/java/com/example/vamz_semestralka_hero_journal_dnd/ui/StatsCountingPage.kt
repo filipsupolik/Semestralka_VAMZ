@@ -44,21 +44,12 @@ enum class StatMethod { ROLL, STANDARD_ARRAY, POINT_BUY }
 
 @Composable
 fun AbilityScreen(
-    raceBonuses: Map<String, Int> = mapOf( // napríklad: podľa rasy
-        "Strength" to 2,
-        "Dexterity" to 0,
-        "Constitution" to 1,
-        "Intelligence" to 0,
-        "Wisdom" to 0,
-        "Charisma" to 0
-    ),
-    completeCharacterCreationViewModel: CharacterCreationViewModel = viewModel(),
+    completeCharacterCreationViewModel: CharacterCreationViewModel,
     modifier: Modifier
 ) {
-
     val statsPageState by completeCharacterCreationViewModel.uiState.collectAsState()
     var selectedMethod: StatMethod by remember { mutableStateOf(StatMethod.ROLL) }
-    val baseValues = remember { mutableStateMapOf<String, Int>().apply { stats.forEach { this[it] = 3 } } }
+    val baseValues = remember { mutableStateMapOf<String, Int>().apply { statsPageState.raceStats.forEach { this[it.key.name] = 3 } } }
 Scaffold(
     topBar = {
         StatsCheckTopAppBar(modifier)
@@ -77,14 +68,13 @@ Scaffold(
                         selectedMethod = method
                         when (method) {
                             StatMethod.ROLL -> {
-                                stats.forEach { baseValues[it] = 3 }
+                                statsPageState.raceStats.forEach { baseValues[it.key.name] = 3 }
                             }
                             StatMethod.STANDARD_ARRAY -> {
-                                stats.forEach { baseValues[it] = -1 }
+                                statsPageState.raceStats.forEach { baseValues[it.key.name] = -1 }
                             }
                             StatMethod.POINT_BUY -> {
-                                remainingPoints = 27
-                                stats.forEach { baseValues[it] = 8 }
+                                statsPageState.raceStats.forEach { baseValues[it.key.name] = 8 }
                             }
                         }
                     }
@@ -94,27 +84,27 @@ Scaffold(
         }
 
         if (selectedMethod == StatMethod.POINT_BUY) {
-            Text("Remaining Points: $remainingPoints", style = MaterialTheme.typography.bodyMedium)
+            Text("Remaining Points: ${statsPageState.remainingPoints}", style = MaterialTheme.typography.bodyMedium)
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        stats.forEach { stat ->
+        statsPageState.raceStats.forEach { stat ->
             AbilityRow(
-                label = stat,
-                base = baseValues[stat] ?: 0,
-                raceBonus = raceBonuses[stat] ?: 0,
+                label = stat.key.name,
+                base = baseValues[stat.key.name] ?: 0,
+                raceBonus = stat.value ?: 0,
                 method = selectedMethod,
                 onBaseChange = { newValue ->
-                    val current = baseValues[stat] ?: 0
+                    val current = baseValues[stat.key.name  ] ?: 0
                     if (selectedMethod == StatMethod.POINT_BUY) {
                         val cost = pointBuyCost(newValue) - pointBuyCost(current)
-                        if (remainingPoints - cost >= 0 && newValue in 8..15) {
-                            baseValues[stat] = newValue
-                            remainingPoints -= cost
+                        if (statsPageState.remainingPoints - cost >= 0 && newValue in 8..15) {
+                            baseValues[stat.key.name] = newValue
+                            completeCharacterCreationViewModel.setRemainingStatsPoints(cost)
                         }
                     } else {
-                        baseValues[stat] = newValue
+                        baseValues[stat.key.name] = newValue
                     }
                 }
             )
@@ -236,14 +226,7 @@ fun pointBuyCost(score: Int): Int = when (score) {
 fun PreviewAbilityScreen() {
     MaterialTheme {
         AbilityScreen(
-            raceBonuses = mapOf(
-                "Strength" to 2,
-                "Dexterity" to 1,
-                "Constitution" to 0,
-                "Intelligence" to 0,
-                "Wisdom" to 0,
-                "Charisma" to 0
-            ),
+            completeCharacterCreationViewModel = viewModel(),
             modifier = Modifier
         )
     }
