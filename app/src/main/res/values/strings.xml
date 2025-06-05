@@ -20,4 +20,9 @@
     <string name="description_page_top_app_bar_back_arrow_desc">Return back to choosing</string>
     <string name="description_page_top_app_bar_text">%1$s</string>
     <string name="Stats_top_app_bar_title">Abilities</string>
+    <string name="backArrow">Arrow back to previous screen</string>
+    <string name="arrow_forward_to_next_page">Arrow forward to next page</string>
+    <string name="Region_page_image_contentDescription">Image of the %1$s</string>
+    <string name="Back_button_label">Back</string>
+    <string name="next_button_label">Next</string>
 </resources>

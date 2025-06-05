@@ -55,7 +55,7 @@ sealed class Region(val regionName: String, val regionDescription: String, val i
         imageRes = R.drawable.void_image)
     companion object
     {
-        fun chooseRaceFromName(name: String): Region? = when(name){
+        fun chooseRegionFromName(name: String): Region = when(name){
             "Freljord" -> Freljord
             "Demacia" -> Demacia
             "Noxus" -> Noxus
@@ -68,7 +68,7 @@ sealed class Region(val regionName: String, val regionDescription: String, val i
             "Bilgewater" -> Bilgewater
             "Ionia" -> Ionia
             "Bandle City" -> BandelCity
-            else -> null
+            else -> Ionia
         }
     }
 

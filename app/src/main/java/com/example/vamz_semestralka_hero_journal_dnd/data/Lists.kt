@@ -28,8 +28,6 @@ data class HeroProfile(
     val lvl: Int
 )
 
-val characters: List<HeroProfile> = listOf()
-
 val regions = listOf(
 
     Lists.Region(
@@ -81,7 +79,6 @@ val regions = listOf(
         regionName = "The Void",
     )
 )
-
 val classes = listOf(
     Lists.HeroClasses(
         imageResourceId = R.drawable.dnd_cleric_5e_subclass,

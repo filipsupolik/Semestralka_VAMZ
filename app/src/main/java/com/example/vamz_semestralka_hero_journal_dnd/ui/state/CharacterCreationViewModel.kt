@@ -1,7 +1,9 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui.state
 
 import androidx.lifecycle.ViewModel
+import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
+import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
 import com.example.vamz_semestralka_hero_journal_dnd.data.Region
@@ -42,32 +44,34 @@ class CharacterCreationViewModel: ViewModel() {
         }
     }
 
-    fun setHeroRace(race: HeroRaceDesc?)
+    fun setHeroRace(raceName: String)
     {
         _uiState.update { currentPlayer ->
-            currentPlayer.copy(characterRace = race ?: HeroRaceDesc.Human())
+            currentPlayer.copy(characterRace = HeroClassDesc.HeroRace.chooseRaceFromName(raceName) ?: HeroRaceDesc.Human())
         }
     }
 
-    fun setHeroClass(heroClass: HeroClassDesc?)
+    fun setHeroClass(className: String)
     {
         _uiState.update { currentPlayer ->
-            currentPlayer.copy(characterClass = heroClass ?: HeroClassDesc.Rogue())
+            currentPlayer.copy(characterClass = HeroClassDesc.HeroClass.chooseRaceFromName(className) ?: HeroClassDesc.Rogue())
         }
     }
 
-    fun setSelectedLanguage(language: String)
+    fun setPlayerLanguage(language: String)
     {
         _uiState.update { currentPlayer ->
             currentPlayer.copy(
-                playerLanguages = currentPlayer.playerLanguages.plus(language)
+                playerLanguages = currentPlayer.playerLanguages.plus(
+                    currentPlayer.characterRace.fixedLanguages
+                ).plus(language)
             )
         }
     }
 
     fun setStartingSpell(spell: String) {
         _uiState.update { currentState ->
-            val findSpell = currentState.characterClass?.spells?.find { it.name == spell }
+            val findSpell = currentState.characterClass.spells.find { it.name == spell }
             currentState.copy(
                 playerSpell = findSpell
             )
@@ -85,7 +89,7 @@ class CharacterCreationViewModel: ViewModel() {
     fun setRegion(name: String) {
         _uiState.update {currentState->
             currentState.copy(
-                playerRegion = Region.chooseRaceFromName(name)
+                playerRegion = Region.chooseRegionFromName(name)
             )
         }
     }
@@ -93,7 +97,7 @@ class CharacterCreationViewModel: ViewModel() {
     fun resetRegion() {
         _uiState.update { currentUiState->
             currentUiState.copy(
-                playerRegion = null
+                playerRegion = Region.Ionia
             )
         }
     }
@@ -124,6 +128,37 @@ class CharacterCreationViewModel: ViewModel() {
         _uiState.update { currentState->
             currentState.copy(
                 remainingPoints = currentState.remainingPoints - cost
+            )
+        }
+    }
+
+    fun addCreatedCharacterToList(){
+        _uiState.update {currentState ->
+            currentState.copy(
+                allCharacters = currentState.allCharacters.plus(HeroProfile(
+                    imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
+                    lvlDescription = R.string.level,
+                    name = currentState.playerName,
+                    descriptionCharacterRace = currentState.characterRace.name,
+                    descriptionCharacterClass = currentState.characterClass.name,
+                    lvl = currentState.playerLevel
+                ))
+            )
+        }
+    }
+
+    fun setSelectedLanguage(language: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                selectedLanguage = language
+            )
+        }
+    }
+
+    fun setSelectedSubrace(subrace: SubRace?) {
+        _uiState.update {currentState ->
+            currentState.copy(
+                selectedSubRace = subrace
             )
         }
     }

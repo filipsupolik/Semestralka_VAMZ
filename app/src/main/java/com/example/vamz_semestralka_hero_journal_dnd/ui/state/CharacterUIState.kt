@@ -3,26 +3,28 @@ package com.example.vamz_semestralka_hero_journal_dnd.ui.state
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
+import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
 import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
+import com.example.vamz_semestralka_hero_journal_dnd.data.regions
 import com.example.vamz_semestralka_hero_journal_dnd.ui.StatMethod
 
 data class CharacterUIState(
     val playerName: String = "",
     val characterRace: HeroRaceDesc = HeroRaceDesc.Human(),
-    val characterClass: HeroClassDesc? = null,
+    val characterClass: HeroClassDesc = HeroClassDesc.Paladin(),
     val characterSubRace: SubRace? = null,
-    val playerRegion: Region? = null,
+    val playerRegion: Region = Region.Ionia,
     val playerLanguages: List<String> = emptyList(),
 
-    val characterList: HeroProfile? = null,
     val playerSkill: Pair<String, String> = "" to "",
+    val allCharacters: List<HeroProfile> = emptyList(),
+    val listOfRegions: List<Lists.Region> = regions,
 
     val playerSpell: Spell? = null,
 
-    val selectedRegion: Region? = null,
     val selectedLanguage: String = "",
     val selectedSubRace: SubRace? = null,
     val selectedMethodStatsCounting: StatMethod = StatMethod.ROLL,

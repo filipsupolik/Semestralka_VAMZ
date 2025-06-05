@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DrawerValue
@@ -47,15 +48,18 @@ import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationV
 import kotlinx.coroutines.launch
 
 @Composable
-fun CharacterStatsScreen(name: String, characterCreationViewModel: CharacterCreationViewModel) {
+fun CharacterStatsScreen(
+    characterCreationViewModel: CharacterCreationViewModel,
+    onBack: () -> Unit
+) {
     val characterState by characterCreationViewModel.uiState.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     val characterInfo: Map<String, String?> = mapOf(
         "Name" to characterState.playerName,
-        "Region" to characterState.selectedRegion?.regionName,
-        "Class" to characterState.characterClass?.name,
+        "Region" to characterState.playerRegion.regionName,
+        "Class" to characterState.characterClass.name,
         "Race" to characterState.characterRace.name
     )
 
@@ -69,7 +73,7 @@ fun CharacterStatsScreen(name: String, characterCreationViewModel: CharacterCrea
     ) {
         Scaffold(
             topBar = {
-                ShowHeroTopAppBar(characterInfo) {
+                ShowHeroTopAppBar(characterInfo, onBack) {
                     scope.launch {
                         drawerState.open()
                     }
@@ -83,9 +87,20 @@ fun CharacterStatsScreen(name: String, characterCreationViewModel: CharacterCrea
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowHeroTopAppBar(characterInfo: Map<String, String?>, onMenuClick:()->Unit) {
+fun ShowHeroTopAppBar(characterInfo: Map<String, String?>, onMenuClick:()->Unit, onBack: () -> Unit) {
     CenterAlignedTopAppBar(
-        title = { Text("Stats") },
+        title = {
+            Row {
+                Text("Stats")
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Home icon",
+                    modifier = Modifier.clickable {
+                        onBack()
+                    }
+                )
+            }
+        },
         navigationIcon = {
             IconButton(onClick = onMenuClick) {
                 Icon(Icons.Default.Menu, contentDescription = "Menu")
@@ -210,7 +225,7 @@ fun StatCard(title: String, value: String, width: Dp = 120.dp) {
 @Composable
 fun CharacterStatsScreenPreview() {
     MaterialTheme {
-        CharacterStatsScreen(name = "Jinx",characterCreationViewModel= viewModel())
+        CharacterStatsScreen(characterCreationViewModel= viewModel(), onBack = {},)
     }
 }
 

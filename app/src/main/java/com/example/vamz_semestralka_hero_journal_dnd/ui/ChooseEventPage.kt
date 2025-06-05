@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -57,14 +59,14 @@ fun HeroJournalMainPageTopAppBar(modifier: Modifier = Modifier ) {
 }
 
 @Composable
-fun MainPageButton(description: String, id: Int ,modifier: Modifier = Modifier) {
+fun MainPageButton(description: String, id: Int , onCharacterCreation: () -> Unit ,modifier: Modifier = Modifier) {
     Box(
         modifier = Modifier
             .padding(16.dp)
             .alpha(0.9f)
     ){
         Button(
-            onClick = {},
+            onClick = onCharacterCreation,
             modifier = Modifier.width(300.dp),
             shape = RectangleShape,
             colors = ButtonColors(
@@ -96,12 +98,14 @@ fun MainPageButton(description: String, id: Int ,modifier: Modifier = Modifier) 
 }
 
 @Composable
-fun MainPage(modifier: Modifier = Modifier){
+fun MainPage(modifier: Modifier = Modifier, navigation: () -> Unit){
     Scaffold(
         topBar = {
             HeroJournalMainPageTopAppBar()
         }
     ) { paddingValues ->
+
+        val scrollState = rememberScrollState()
         Box(
             contentAlignment = Alignment.Center,
             modifier = modifier
@@ -116,15 +120,18 @@ fun MainPage(modifier: Modifier = Modifier){
             )
             Column(
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.verticalScroll(state = scrollState, enabled = true)
             ) {
                 MainPageButton(
                     stringResource(R.string.character_create_button_desc),
-                    R.drawable.clipart2592289
+                    R.drawable.clipart2592289,
+                    onCharacterCreation = navigation
                 )
                 MainPageButton(
                     stringResource(R.string.world_info_button_desc),
-                    R.drawable._037118
+                    R.drawable._037118,
+                    onCharacterCreation = navigation
                 )
             }
         }
@@ -135,6 +142,8 @@ fun MainPage(modifier: Modifier = Modifier){
 @Composable
 fun GreetingPreview() {
     AppTheme {
-        MainPage()
+        MainPage(
+            navigation = {}
+        )
     }
 }

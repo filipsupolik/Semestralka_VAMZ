@@ -31,7 +31,12 @@ import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
-fun CharacterNameChoice( characterCreationViewModel: CharacterCreationViewModel = viewModel(), modifier: Modifier = Modifier) {
+fun CharacterNameChoice(
+    characterCreationViewModel: CharacterCreationViewModel,
+    modifier: Modifier = Modifier,
+    onRaceSelection: () -> Unit,
+    onHome: () -> Unit
+) {
     val characterUIState by characterCreationViewModel.uiState.collectAsState()
     Box{
         Image(
@@ -58,17 +63,23 @@ fun CharacterNameChoice( characterCreationViewModel: CharacterCreationViewModel 
                     .padding(dimensionResource(R.dimen.padding_medium)),
                 horizontalArrangement = Arrangement.Start
             ) {
-                CreateNameAddButton()
-                CreateNameCancelButton()
+                CreateNameAddButton(
+                    onNextPage = onRaceSelection
+                )
+                CreateNameCancelButton(
+                    onBack = onHome
+                )
             }
         }
     }
 }
 
 @Composable
-fun CreateNameCancelButton(modifier: Modifier = Modifier) {
+fun CreateNameCancelButton(modifier: Modifier = Modifier, onBack: () -> Unit) {
     Button(
-        onClick = { },
+        onClick = {
+            onBack()
+        },
         modifier = modifier
     ) {
         Text(
@@ -78,9 +89,14 @@ fun CreateNameCancelButton(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CreateNameAddButton(modifier: Modifier = Modifier) {
+fun CreateNameAddButton(
+    modifier: Modifier = Modifier,
+    onNextPage: () -> Unit
+) {
     Button(
-        onClick = { },
+        onClick = {
+            onNextPage()
+        },
         modifier = modifier
     ) {
         Text(
@@ -126,5 +142,10 @@ fun CreateNameTitle(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun AddNamePreview() {
-    CharacterNameChoice()
+    val viewModel: CharacterCreationViewModel = viewModel()
+    CharacterNameChoice(
+        characterCreationViewModel = viewModel,
+        onRaceSelection = {},
+        onHome = {}
+    )
 }

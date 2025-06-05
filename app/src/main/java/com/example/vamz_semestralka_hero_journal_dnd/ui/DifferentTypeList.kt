@@ -9,9 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,20 +29,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
-import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
 import com.example.vamz_semestralka_hero_journal_dnd.data.classes
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
 fun HeroListPage(
-    whatToSelect: String,listOfDifferentTypes: List<Lists>,
+    whatToSelect: String, listOfDifferentTypes: List<Lists>,
     characterCreationViewModel: CharacterCreationViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNextPage: (String) -> Unit,
+    onBack: () -> Unit
 ){
     Scaffold(
         topBar = { HeroListTopAppBar(
-            whatToSelect = whatToSelect
+            whatToSelect = whatToSelect,
+            onBack = onBack
         ) }
     ) {  innerPadding ->
         LazyColumn(
@@ -53,20 +58,23 @@ fun HeroListPage(
                     is Lists.HeroRace -> HeroRaceItem(
                         heroRace = item,
                         onClick = {
+                            onNextPage(item.raceName)
                             characterCreationViewModel.setHeroRace(
-                                HeroClassDesc.HeroRace.chooseRaceFromName(item.raceName)
+                                item.raceName
                             )
                         })
                     is Lists.HeroClasses -> HeroClassItem(
                         heroClass = item,
                         onClick = {
+                            onNextPage(item.className)
                             characterCreationViewModel.setHeroClass(
-                                HeroClassDesc.HeroClass.chooseRaceFromName(item.className)
+                                item.className
                             )
                         })
                     is Lists.Region -> RegionItem(
                         region = item,
                         onClick = {
+                            onNextPage(item.regionName)
                             characterCreationViewModel.setRegion(
                                 item.regionName
                             )
@@ -79,11 +87,20 @@ fun HeroListPage(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeroListTopAppBar(whatToSelect: String,modifier: Modifier = Modifier){
+fun HeroListTopAppBar(whatToSelect: String,modifier: Modifier = Modifier, onBack: () -> Unit){
     CenterAlignedTopAppBar(
         title = {
             Text(
                 text = stringResource(R.string.region_top_app_bar, whatToSelect)
+            )
+        },
+        navigationIcon = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.backArrow),
+                modifier = Modifier.clickable {
+                    onBack()
+                }
             )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -185,5 +202,5 @@ fun HeroRaceItem(heroRace: Lists.HeroRace, onClick:() -> Unit,modifier: Modifier
 @Preview
 @Composable
 fun HeroListPreview() {
-    HeroListPage("class",listOfDifferentTypes = classes, viewModel())
+    HeroListPage("class", listOfDifferentTypes = classes, viewModel(), onNextPage = {}, onBack = {})
 }

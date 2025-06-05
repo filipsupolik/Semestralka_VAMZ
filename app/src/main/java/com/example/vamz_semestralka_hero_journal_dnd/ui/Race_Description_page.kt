@@ -5,14 +5,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DropdownMenu
@@ -44,34 +50,79 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
-fun Description_Page(
+fun HeroRace_Description_Page(
     description: String,
     race: HeroRaceDesc?,
-    characterCreationViewModel: CharacterCreationViewModel)
+    characterCreationViewModel: CharacterCreationViewModel,
+    onNextPage: () -> Unit,
+    onBack: () -> Unit
+)
 {
     val characterState by characterCreationViewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
     Scaffold (
         topBar = {
-            CharacterPageTopAppBar(description,modifier = Modifier)
+            CharacterPageTopAppBar(viewModel = characterCreationViewModel ,description,modifier = Modifier, onBackClick = onBack, onNextClick = onNextPage)
+        },
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = {
+                                characterCreationViewModel.resetRegion()
+                                onBack()
+                            },
+                        ) {
+                            Text(text = "Back")
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Button(
+                            onClick = {
+                                characterCreationViewModel.setRegion(
+                                    name = characterState.playerRegion.regionName
+                                )
+                                characterCreationViewModel.setPlayerSubRace(
+                                    subRace = characterState.selectedSubRace
+                                )
+                                characterCreationViewModel.setPlayerLanguage(
+                                    language = characterState.selectedLanguage
+                                )
+                                characterCreationViewModel.calculateBAseAttribute(
+                                    race = characterState.characterRace,
+                                    subRace = characterState.selectedSubRace
+                                )
+                                onNextPage()
+                            }
+                        ) {
+                            Text(text = "Next")
+                        }
+                    }
+                }
+            )
         }
     ) { innerPadding ->
 
         Box(
             modifier = Modifier
-                .fillMaxSize().
-                padding(innerPadding)
+                .fillMaxSize()
+                .padding(innerPadding)
         )
         {
-            characterState.characterClass?.imageRes?.let { painterResource(id = it) }?.let {
                 Image(
-                    painter = it,
+                    painter = painterResource(id = characterState.characterRace.imageRes),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)
                 )
-            }
+        }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -79,6 +130,7 @@ fun Description_Page(
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .background(Color.LightGray)
                     .padding(16.dp)
+                    .verticalScroll(state = scrollState, enabled = true)
             ) {
                 Text(
                     text = race?.name ?: "",
@@ -100,7 +152,7 @@ fun Description_Page(
                 race?.availableLanguages?.let {
                     DropdownSelector(
                         label = "Choose a language",
-                        description = race?.descriptionCharacterRace ?: "",
+                        description = race.descriptionCharacterRace,
                         options = it.filterNot { it in race.fixedLanguages },
                         selectedOption = characterState.selectedLanguage,
                         onOptionSelected = { language->
@@ -123,7 +175,7 @@ fun Description_Page(
                         options = race.subraces.map { it.name },
                         selectedOption = characterState.selectedSubRace?.name,
                         onOptionSelected = { name ->
-                            characterCreationViewModel.setPlayerSubRace(
+                            characterCreationViewModel.setSelectedSubrace(
                                 race.subraces.find { it.name == name }
                             )
                         },
@@ -135,7 +187,6 @@ fun Description_Page(
             }
         }
     }
-}
 
 @Composable
 fun TraitCard(name: String, description: String) {
@@ -196,26 +247,58 @@ fun DropdownSelector(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun CharacterPageTopAppBar(
+    viewModel: CharacterCreationViewModel,
     description: String,
     modifier: Modifier = Modifier,
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit,
+    onNextClick: () -> Unit,
 ) {
+
+    val characterState by viewModel.uiState.collectAsState()
     CenterAlignedTopAppBar(
         modifier = modifier,
         title = {
-            Text(
-                text = stringResource(R.string.description_page_top_app_bar_text, description),
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-        navigationIcon = {
-            Icon(
-                painter = painterResource(R.drawable._34226_back_arrow_left_icon),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .clickable { onBackClick() }
-                    .padding(horizontal = 16.dp)
-            )
+            Row {
+                Icon(
+                    painter = painterResource(R.drawable._34226_back_arrow_left_icon),
+                    contentDescription = "Back",
+                    modifier = Modifier
+                        .clickable { onBackClick() }
+                        .padding(horizontal = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    text = stringResource(R.string.description_page_top_app_bar_text, description),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(R.string.arrow_forward_to_next_page),
+                    modifier = Modifier
+                        .clickable {
+                            viewModel.setRegion(
+                                name = characterState.playerRegion.regionName
+                            )
+                            viewModel.setPlayerSubRace(
+                                subRace = characterState.selectedSubRace
+                            )
+                            viewModel.setPlayerLanguage(
+                                language = characterState.selectedLanguage
+                            )
+                            viewModel.calculateBAseAttribute(
+                                race = characterState.characterRace,
+                                subRace = characterState.selectedSubRace
+                            )
+                            onNextClick()
+                        }
+                        .padding(horizontal = 16.dp)
+                )
+            }
         }
     )
 }
@@ -241,9 +324,11 @@ fun SubraceSection(selectedSubrace: SubRace?) {
 @Composable
 fun PreviewDescriptionPage() {
     val previewRace = HeroRaceDesc.Yordle()
-    Description_Page(
-        description = "Yorlde",
+    HeroRace_Description_Page(
+        description = "Yordle",
         race = previewRace,
-        characterCreationViewModel = viewModel()
+        characterCreationViewModel = viewModel(),
+        onBack = {},
+        onNextPage = {}
     )
 }

@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -35,8 +37,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
@@ -46,7 +50,9 @@ import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationV
 fun HeroClassDetailScreen(
     heroClass: HeroClassDesc,
     imageRes: Int?,
-    characterCreationViewModel: CharacterCreationViewModel
+    characterCreationViewModel: CharacterCreationViewModel,
+    onNextPage: () -> Unit,
+    onBack: () -> Boolean
 ) {
     val characterUIState by characterCreationViewModel.uiState.collectAsState()
     var mExpanded by remember { mutableStateOf(false) }
@@ -55,7 +61,30 @@ fun HeroClassDetailScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(heroClass.name, style = MaterialTheme.typography.titleLarge) }
+                title = {
+                    Row {
+                        Text(heroClass.name, style = MaterialTheme.typography.titleLarge)
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = stringResource(R.string.arrow_forward_to_next_page),
+                            modifier = Modifier.clickable {
+                                onNextPage()
+                            }
+                        )
+                    }
+                },
+                navigationIcon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.backArrow),
+                        modifier = Modifier.clickable {
+                            onBack()
+                        }
+                    )
+                }
             )
         }
     ) { innerPadding ->

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -45,14 +46,16 @@ enum class StatMethod { ROLL, STANDARD_ARRAY, POINT_BUY }
 @Composable
 fun AbilityScreen(
     completeCharacterCreationViewModel: CharacterCreationViewModel,
-    modifier: Modifier
+    modifier: Modifier,
+    onNextPage: () -> Unit,
+    onBack: () -> Unit
 ) {
     val statsPageState by completeCharacterCreationViewModel.uiState.collectAsState()
     var selectedMethod: StatMethod by remember { mutableStateOf(StatMethod.ROLL) }
     val baseValues = remember { mutableStateMapOf<String, Int>().apply { statsPageState.raceStats.forEach { this[it.key.name] = 3 } } }
 Scaffold(
     topBar = {
-        StatsCheckTopAppBar(modifier)
+        StatsCheckTopAppBar(viewModel = completeCharacterCreationViewModel,modifier, onNextPage = onNextPage, onBackClick = onBack)
     }
 ) {innerPadding ->
     Column(modifier = Modifier.padding(innerPadding)) {
@@ -89,7 +92,7 @@ Scaffold(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        statsPageState.raceStats.forEach { stat ->
+        statsPageState.totalStatsValue.forEach { stat ->
             AbilityRow(
                 label = stat.key.name,
                 base = baseValues[stat.key.name] ?: 0,
@@ -116,14 +119,27 @@ Scaffold(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsCheckTopAppBar(modifier: Modifier, onBackClick: () -> Unit = {}) {
+fun StatsCheckTopAppBar(viewModel: CharacterCreationViewModel, modifier: Modifier, onBackClick: () -> Unit = {}, onNextPage: () -> Unit) {
     CenterAlignedTopAppBar(
         modifier = modifier,
         title = {
-            Text(
-                text = stringResource(R.string.Stats_top_app_bar_title),
-                style = MaterialTheme.typography.titleLarge
-            )
+            Row {
+                Text(
+                    text = stringResource(R.string.Stats_top_app_bar_title),
+                    style = MaterialTheme.typography.titleLarge
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(R.string.arrow_forward_to_next_page),
+                    modifier = Modifier.clickable {
+                        viewModel.addCreatedCharacterToList()
+                        onNextPage()
+                    }
+                )
+            }
         },
         navigationIcon = {
             Icon(
@@ -227,7 +243,9 @@ fun PreviewAbilityScreen() {
     MaterialTheme {
         AbilityScreen(
             completeCharacterCreationViewModel = viewModel(),
-            modifier = Modifier
+            modifier = Modifier,
+            onBack = {},
+            onNextPage = {}
         )
     }
 }
