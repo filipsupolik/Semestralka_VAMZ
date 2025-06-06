@@ -42,10 +42,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
@@ -93,7 +96,10 @@ fun HeroClassDetailScreen(
                             onBack()
                         }
                     )
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
             )
         }
     ) { innerPadding ->
@@ -103,12 +109,11 @@ fun HeroClassDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.padding_medium))
                 .verticalScroll(state = classDescriptionScrollState)
         ) {
-            imageRes?.let { painterResource(id = it) }?.let {
                 Image(
-                    painter = it,
+                    painter = painterResource(id = heroClass.imageRes),
                     contentDescription = heroClass.name,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,24 +121,23 @@ fun HeroClassDetailScreen(
                         .clip(RoundedCornerShape(16.dp)),
                     contentScale = ContentScale.Crop
                 )
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = heroClass.description,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_medium))
             )
 
-            Text("Hit Dice: ${heroClass.hitDice}", style = MaterialTheme.typography.bodyLarge)
-            Text("Saving Throws: ${heroClass.savingThrows.first}, ${heroClass.savingThrows.second}", style = MaterialTheme.typography.bodyLarge)
-            Text("Armor Proficiencies: ${heroClass.armor}", style = MaterialTheme.typography.bodyLarge)
-            Text("Weapon Proficiencies: ${heroClass.weapon}", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.hit_dice, heroClass.hitDice), style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.saving_throws, heroClass.savingThrows.first, heroClass.savingThrows.second), style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.armor_proficiencies, heroClass.armor), style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.weapon_proficiencies, heroClass.weapon), style = MaterialTheme.typography.bodyLarge)
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Choose ${heroClass.skillChoices} skills:", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.choose_skills, heroClass.skillChoices), style = MaterialTheme.typography.titleMedium)
 
             Column(Modifier.padding(20.dp)) {
                 DropdownSelector(
@@ -156,7 +160,7 @@ fun HeroClassDetailScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Choose one starting spell:", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.choose_one_starting_spell), style = MaterialTheme.typography.titleMedium)
             heroClass.spells.forEach { spell ->
                 val isSelected = spell == characterUIState.playerSpell
                 Card(
@@ -178,7 +182,7 @@ fun HeroClassDetailScreen(
                     ) {
                         Text(text = spell.name, modifier = Modifier.weight(1f))
                         IconButton(onClick = { descriptionDialogSpell = spell }) {
-                            Icon(Icons.Default.Info, contentDescription = "Spell Info")
+                            Icon(Icons.Default.Info, contentDescription = stringResource(R.string.spell_info))
                         }
                     }
                 }
@@ -196,7 +200,7 @@ fun HeroClassDetailScreen(
                     onBack()
                 }
             ) {
-                Text(text = "Back")
+                Text(text = stringResource(R.string.back_label_button))
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -207,7 +211,7 @@ fun HeroClassDetailScreen(
                 },
                 enabled = characterUIState.playerSkill.toList().isNotEmpty() && characterUIState.playerSpell != null
             ) {
-                Text(text = "Next")
+                Text(text = stringResource(R.string.next_label_button))
             }
         }
     }
@@ -222,12 +226,17 @@ fun HeroClassDetailScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(spell.name, style = MaterialTheme.typography.titleLarge)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("${spell.school} (Level ${spell.level})")
+                    Text(
+                        stringResource(
+                            R.string.spell_description_school_level,
+                            spell.school,
+                            spell.level
+                        ))
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(spell.description, style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = { descriptionDialogSpell = null }, modifier = Modifier.align(Alignment.End)) {
-                        Text("Close")
+                        Text(stringResource(R.string.close_label_button))
                     }
                 }
             }
@@ -257,7 +266,7 @@ fun DropdownSelector(
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Show options arrow",
+                        contentDescription = stringResource(R.string.show_options_arrow),
                         Modifier.clickable { expanded = true }
                     )
                 }
@@ -275,5 +284,18 @@ fun DropdownSelector(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewDescriptionPage() {
+    val previewClass = HeroClassDesc.Paladin()
+    HeroClassDetailScreen(
+        heroClass = previewClass,
+        characterCreationViewModel = viewModel(),
+        onBack = {},
+        onNextPage = {},
+        imageRes = R.drawable.dnd_paladin_5e_dwarf
+    )
 }
 

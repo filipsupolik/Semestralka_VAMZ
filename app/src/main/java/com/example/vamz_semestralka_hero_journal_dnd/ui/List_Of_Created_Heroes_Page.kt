@@ -218,7 +218,7 @@ fun HeroItemLvl(level: Int,modifier: Modifier = Modifier) {
             text = stringResource(R.string.level)
         )
         Text(
-            text = "$level"
+            text = stringResource(R.string.level_value, level)
         )
     }
 }

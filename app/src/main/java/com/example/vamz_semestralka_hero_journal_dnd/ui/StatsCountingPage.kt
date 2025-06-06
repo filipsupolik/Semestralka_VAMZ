@@ -33,7 +33,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +44,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
-enum class StatMethod { ROLL, STANDARD_ARRAY, POINT_BUY }
+enum class StatMethod(val label: String) {
+    ROLL("Roll"),
+    STANDARD_ARRAY("Standard Array"),
+    POINT_BUY("Point Buy")
+}
 
 @Composable
 fun AbilityScreen(
@@ -52,141 +58,92 @@ fun AbilityScreen(
     onBack: () -> Unit
 ) {
     val statsPageState by completeCharacterCreationViewModel.uiState.collectAsState()
-    var selectedMethod: StatMethod by remember { mutableStateOf(StatMethod.ROLL) }
-Scaffold(
-    topBar = {
-        StatsCheckTopAppBar(viewModel = completeCharacterCreationViewModel,modifier, onNextPage = onNextPage, onBackClick = onBack)
-    }
-) {innerPadding ->
-    Column(modifier = Modifier
-        .padding(innerPadding)
-        .verticalScroll(state = rememberScrollState())
-    ) {
-        Text("Abilities", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(8.dp))
+    var selectedMethod by remember { mutableStateOf(StatMethod.ROLL) }
 
-        Text("Select A Method", style = MaterialTheme.typography.titleMedium)
-        StatMethod.entries.forEach { method ->
-            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                RadioButton(
-                    selected = selectedMethod == method,
-                    onClick = {
-                        selectedMethod = method
-                        when (method) {
-                            StatMethod.ROLL -> {
-                                completeCharacterCreationViewModel.setBaseValues(3)
-                            }
-                            StatMethod.STANDARD_ARRAY -> {
-                                completeCharacterCreationViewModel.setBaseValues(-1)
-                            }
-                            StatMethod.POINT_BUY -> {
-                                completeCharacterCreationViewModel.setBaseValues(8)
+    Scaffold(
+        topBar = {
+            StatsCheckTopAppBar(viewModel = completeCharacterCreationViewModel, modifier, onNextPage = onNextPage, onBackClick = onBack)
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(stringResource(R.string.abilities), style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(stringResource(R.string.select_a_method), style = MaterialTheme.typography.titleMedium)
+            StatMethod.entries.forEach { method ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = selectedMethod == method,
+                        onClick = {
+                            selectedMethod = method
+                            when (method) {
+                                StatMethod.ROLL -> completeCharacterCreationViewModel.setBaseValues(3)
+                                StatMethod.STANDARD_ARRAY -> completeCharacterCreationViewModel.setBaseValues(-1)
+                                StatMethod.POINT_BUY -> completeCharacterCreationViewModel.setBaseValues(8)
                             }
                         }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = method.label, style = MaterialTheme.typography.titleMedium)
+                }
+            }
+
+            if (selectedMethod == StatMethod.POINT_BUY) {
+                Text(stringResource(R.string.remaining_points, statsPageState.remainingPoints), style = MaterialTheme.typography.bodyMedium)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            statsPageState.baseValue.forEach { (attribute, base) ->
+                AbilityRow(
+                    label = attribute.name,
+                    base = base,
+                    raceBonus = statsPageState.raceStats[attribute] ?: 0,
+                    method = selectedMethod,
+                    onBaseChange = { newValue ->
+                        if (selectedMethod == StatMethod.POINT_BUY) {
+                            val cost = newValue - (statsPageState.baseValue[attribute] ?: 0)
+                            if (statsPageState.remainingPoints - cost >= 0 && newValue in 8..15) {
+                                completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
+                                completeCharacterCreationViewModel.setRemainingStatsPoints(cost)
+                            }
+                        } else {
+                            completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
+                        }
+
+                        completeCharacterCreationViewModel.setTotalStat(attribute, newValue + (statsPageState.raceStats[attribute] ?: 0))
                     }
                 )
-                Text(text = method.name.replace("_", " ").capitalize())
             }
-        }
 
-        if (selectedMethod == StatMethod.POINT_BUY) {
-            Text("Remaining Points: ${statsPageState.remainingPoints}", style = MaterialTheme.typography.bodyMedium)
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        statsPageState.baseValue.forEach { (attribute, base) ->
-            val bonus = statsPageState.raceStats[attribute] ?: 0
-
-            AbilityRow(
-                label = attribute.name,
-                base = base,
-                raceBonus = bonus,
-                method = statsPageState.selectedMethodStatsCounting,
-                onBaseChange = { newValue ->
-                    val current = statsPageState.baseValue[attribute] ?: 0
-
-                    if (statsPageState.selectedMethodStatsCounting == StatMethod.POINT_BUY) {
-                        val cost = pointBuyCost(newValue) - pointBuyCost(current)
-                        if (statsPageState.remainingPoints - cost >= 0 && newValue in 8..15) {
-                            completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
-                            completeCharacterCreationViewModel.setRemainingStatsPoints(cost)
-                        }
-                    } else {
-                        completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
-                    }
-
-                    completeCharacterCreationViewModel.setTotalStat(attribute, newValue + bonus)
-                }
-            )
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Button(
-                onClick = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = dimensionResource(R.dimen.padding_medium))
+            ) {
+                Button(onClick = {
                     completeCharacterCreationViewModel.resetAbilities()
                     onBack()
+                }) {
+                    Text(text = stringResource(R.string.back_label_button))
                 }
-            ) {
-                Text(text = "Back")
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Button(
-                onClick = {
+                Spacer(modifier = Modifier.weight(1f))
+                Button(onClick = {
                     completeCharacterCreationViewModel.addCreatedCharacterToList()
+                    completeCharacterCreationViewModel.resetAbilities()
+                    completeCharacterCreationViewModel.resetRegion()
+                    completeCharacterCreationViewModel.reset()
                     onNextPage()
-                },
-            ) {
-                Text(text = "Next")
+                }) {
+                    Text(text = stringResource(R.string.next_label_button))
+                }
             }
         }
     }
-}
-
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StatsCheckTopAppBar(viewModel: CharacterCreationViewModel, modifier: Modifier, onBackClick: () -> Unit = {}, onNextPage: () -> Unit) {
-    CenterAlignedTopAppBar(
-        modifier = modifier,
-        title = {
-            Row {
-                Text(
-                    text = stringResource(R.string.Stats_top_app_bar_title),
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = stringResource(R.string.arrow_forward_to_next_page),
-                    modifier = Modifier.clickable {
-                        viewModel.addCreatedCharacterToList()
-                        onNextPage()
-                    }
-                )
-            }
-        },
-        navigationIcon = {
-            Icon(
-                painter = painterResource(R.drawable._34226_back_arrow_left_icon),
-                contentDescription = "Back",
-                modifier = Modifier
-                    .clickable { onBackClick() }
-                    .padding(horizontal = 16.dp)
-            )
-        },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    )
 }
 
 @Composable
@@ -197,10 +154,11 @@ fun AbilityRow(
     method: StatMethod,
     onBaseChange: (Int) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 8.dp)) {
         Text(text = label, style = MaterialTheme.typography.titleMedium)
-
-        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             if (method == StatMethod.STANDARD_ARRAY) {
                 val options = (8..15).toList()
                 DropdownMenuBox(
@@ -209,20 +167,19 @@ fun AbilityRow(
                     onOptionSelected = { onBaseChange(it.toInt()) }
                 )
             } else {
-                Button(onClick = { if (base > (if (method == StatMethod.ROLL) 3 else 8)) onBaseChange(base - 1) }) {
+                val min = if (method == StatMethod.ROLL) 3 else 8
+                val max = if (method == StatMethod.ROLL) 18 else 15
+
+                Button(onClick = { if (base > min) onBaseChange(base - 1) }) {
                     Text("-")
                 }
                 Text(base.toString(), modifier = Modifier.padding(horizontal = 16.dp))
-                Button(onClick = {
-                    val max = if (method == StatMethod.ROLL) 18 else 15
-                    if (base < max) onBaseChange(base + 1)
-                }) {
+                Button(onClick = { if (base < max) onBaseChange(base + 1) }) {
                     Text("+")
                 }
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-            Text("+ $raceBonus = ${base + raceBonus}")
+            Text(stringResource(R.string.value_of_stats, raceBonus, base + raceBonus))
         }
     }
 }
@@ -230,17 +187,16 @@ fun AbilityRow(
 @Composable
 fun DropdownMenuBox(selected: String, options: List<String>, onOptionSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-
     Box {
         OutlinedTextField(
             value = selected,
             onValueChange = {},
             modifier = Modifier.width(80.dp),
             readOnly = true,
-            label = { Text("Base") },
+            label = { Text(stringResource(R.string.base)) },
             trailingIcon = {
                 IconButton(onClick = { expanded = true }) {
-                    Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = stringResource(R.string.dropdown))
                 }
             }
         )
@@ -258,16 +214,41 @@ fun DropdownMenuBox(selected: String, options: List<String>, onOptionSelected: (
     }
 }
 
-fun pointBuyCost(score: Int): Int = when (score) {
-    8 -> 0
-    9 -> 1
-    10 -> 2
-    11 -> 3
-    12 -> 4
-    13 -> 5
-    14 -> 7
-    15 -> 9
-    else -> Int.MAX_VALUE
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun StatsCheckTopAppBar(viewModel: CharacterCreationViewModel, modifier: Modifier, onBackClick: () -> Unit = {}, onNextPage: () -> Unit) {
+    CenterAlignedTopAppBar(
+        modifier = modifier,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.Stats_top_app_bar_title),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(R.string.arrow_forward_to_next_page),
+                    modifier = Modifier.clickable {
+                        viewModel.addCreatedCharacterToList()
+                        onNextPage()
+                    }
+                )
+            }
+        },
+        navigationIcon = {
+            Icon(
+                painter = painterResource(R.drawable._34226_back_arrow_left_icon),
+                contentDescription = stringResource(R.string.back_label_button),
+                modifier = Modifier
+                    .clickable { onBackClick() }
+                    .padding(horizontal = 16.dp)
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -282,4 +263,3 @@ fun PreviewAbilityScreen() {
         )
     }
 }
-

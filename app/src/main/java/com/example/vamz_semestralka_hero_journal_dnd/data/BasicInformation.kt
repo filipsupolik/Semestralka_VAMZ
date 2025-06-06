@@ -670,7 +670,7 @@ sealed class HeroClassDesc(
 
     sealed class HeroRace(val name: String, val desc: HeroRaceDesc)
     {
-        object AscendBorn: HeroRace("Ascend-Born", HeroRaceDesc.AscendBorn())
+        object AscendBorn: HeroRace("Ascend Born", HeroRaceDesc.AscendBorn())
         object DarkinBorn: HeroRace("Darkin-Born", HeroRaceDesc.DarkinBorn())
         object Human: HeroRace("Human", HeroRaceDesc.Human())
         object Vastaya: HeroRace("Vastaya", HeroRaceDesc.Vastaya())
@@ -679,7 +679,7 @@ sealed class HeroClassDesc(
         companion object
         {
             fun chooseRaceFromName(name: String): HeroRaceDesc? = when(name){
-                "Ascend-Born" -> AscendBorn.desc
+                "Ascend Born" -> AscendBorn.desc
                 "Darkin-Born" -> DarkinBorn.desc
                 "Human" -> Human.desc
                 "Vastaya" -> Vastaya.desc

@@ -249,10 +249,42 @@ class CharacterCreationViewModel: ViewModel() {
     fun decreaseHp() {
         _uiState.update { currentState ->
             currentState.copy(
-                XpToAdd = if (currentState.XpToAdd <= 0) 0 else currentState.XpToAdd - 1
+                currentHP = if (currentState.currentHP <= 0) 0 else currentState.currentHP - 1
             )
         }
     }
 
+    fun deleteCharacterFromList(name: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                allCharacters = currentState.allCharacters.filterNot { it.name == name },
+                selectedPlayerName = ""
+            )
+        }
+    }
 
+    fun setSelectedPlayerName(name: String){
+        _uiState.update {
+            it.copy(
+                selectedPlayerName = name
+            )
+        }
+    }
+
+    fun reset() {
+        _uiState.update {
+            it.copy(
+                selectedLanguage = "",
+                selectedSubRace = null,
+                playerName = "",
+                characterRace = HeroRaceDesc.Human(),
+                characterClass = HeroClassDesc.Paladin(),
+                playerLanguages = emptyList(),
+                playerRegion = Region.Ionia,
+                playerSkill = Pair("", ""),
+                playerSpell = null,
+                remainingPoints = 27,
+            )
+        }
+    }
 }

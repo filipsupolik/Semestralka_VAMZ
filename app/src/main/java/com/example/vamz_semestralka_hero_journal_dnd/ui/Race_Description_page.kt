@@ -1,5 +1,6 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -81,15 +84,17 @@ fun HeroRace_Description_Page(
             )
         }
         Box(
-            modifier = Modifier.fillMaxSize().verticalScroll(scrollState)
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
         ){
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 280.dp)
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                    .background(Color.LightGray)
-                    .padding(16.dp)
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(dimensionResource(R.dimen.padding_medium))
             ) {
                 Text(
                     text = race?.name ?: "",
@@ -104,14 +109,16 @@ fun HeroRace_Description_Page(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Speed: ${race?.speed}")
-                Text("Size: ${race?.size}")
-                Text("Abilities: ${race?.baseStats?.entries?.joinToString { "${it.key} +${it.value}" }}")
-                Text("Languages: ${(race?.fixedLanguages)}")
+                Text(stringResource(R.string.speed, race?.speed?: ""))
+                Text(stringResource(R.string.size, race?.size?: ""))
+                Text(
+                    stringResource(
+                        R.string.abilities_race_description_page,
+                        race?.baseStats?.entries?.joinToString { "${it.key} +${it.value}" }?:""))
+                Text(stringResource(R.string.languages, (race?.fixedLanguages?:"")))
                 race?.availableLanguages?.let {
                     DropdownSelector(
-                        label = "Choose a language",
-                        description = race.descriptionCharacterRace,
+                        label = stringResource(R.string.choose_a_language),
                         options = it.filterNot { it in race.fixedLanguages },
                         selectedOption = characterState.selectedLanguage,
                         onOptionSelected = { language->
@@ -122,7 +129,7 @@ fun HeroRace_Description_Page(
 
 
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Traits", style = MaterialTheme.typography.titleMedium)
+                Text(text = stringResource(R.string.traits), style = MaterialTheme.typography.titleMedium)
 
                 race?.baseTraits?.forEach {
                     TraitCard(name = it.name, description = it.desc)
@@ -130,15 +137,14 @@ fun HeroRace_Description_Page(
 
                 if (race?.subraces?.isNotEmpty() == true) {
                     DropdownSelector(
-                        label = "Choose a subrace",
+                        label = stringResource(R.string.choose_a_subrace),
                         options = race.subraces.map { it.name },
                         selectedOption = characterState.selectedSubRace?.name,
                         onOptionSelected = { name ->
                             characterCreationViewModel.setSelectedSubrace(
                                 race.subraces.find { it.name == name }
                             )
-                        },
-                        description = race.descriptionCharacterRace
+                        }
                     )
 
                     SubraceSection(selectedSubrace = characterState.selectedSubRace)
@@ -156,15 +162,15 @@ fun HeroRace_Description_Page(
                                 onBack()
                             }
                         ) {
-                            Text(text = "Back")
+                            Text(text = stringResource(R.string.back_label_button))
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
 
                         Button(
                             onClick = {
-                                characterCreationViewModel.setRegion(name = characterState.playerRegion.regionName)
                                 characterCreationViewModel.setPlayerSubRace(characterState.selectedSubRace)
+                                characterCreationViewModel.setHeroRace(characterState.characterRace.name)
                                 characterCreationViewModel.setPlayerLanguage(characterState.selectedLanguage)
                                 characterCreationViewModel.calculateBAseAttribute(
                                     race = characterState.characterRace,
@@ -174,7 +180,7 @@ fun HeroRace_Description_Page(
                             },
                             enabled = characterState.selectedSubRace != null && characterState.selectedLanguage.isNotBlank()
                         ) {
-                            Text(text = "Next")
+                            Text(text = stringResource(R.string.next_label_button))
                         }
                     }
                 }
@@ -203,12 +209,13 @@ fun DropdownSelector(
     label: String,
     options: List<String>,
     selectedOption: String?,
-    onOptionSelected: (String) -> Unit,
-    description: String
+    onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp)) {
         Text(text = label)
         Box {
             OutlinedTextField(
@@ -219,7 +226,7 @@ fun DropdownSelector(
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Show options arrow",
+                        contentDescription = stringResource(R.string.show_options_arrow),
                         Modifier.clickable { expanded = true }
                     )
                 }
@@ -256,10 +263,10 @@ fun CharacterPageTopAppBar(
             Row {
                 Icon(
                     painter = painterResource(R.drawable._34226_back_arrow_left_icon),
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.backArrow),
                     modifier = Modifier
                         .clickable { onBackClick() }
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -291,10 +298,17 @@ fun CharacterPageTopAppBar(
                             )
                             onNextClick()
                         }
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 )
             }
-        }
+        },
+        colors = TopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            scrolledContainerColor = Color.Unspecified,
+            navigationIconContentColor = Color.Unspecified,
+            titleContentColor = Color.Unspecified,
+            actionIconContentColor = Color.Unspecified
+        )
     )
 }
 
@@ -302,18 +316,19 @@ fun CharacterPageTopAppBar(
 @Composable
 fun SubraceSection(selectedSubrace: SubRace?) {
     if (selectedSubrace != null) {
-        Text("Subrace Traits", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.subrace_traits), style = MaterialTheme.typography.titleMedium)
 
         selectedSubrace.extraTraits.forEach {
             TraitCard(name = it.name, description = it.desc)
         }
 
-        TraitCard(name = "Subrace Abilities", selectedSubrace.extraStats.entries.joinToString { "${it.key} +${it.value}" }
+        TraitCard(name = stringResource(R.string.subrace_abilities), selectedSubrace.extraStats.entries.joinToString { "${it.key} +${it.value}" }
         )
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true,name = "Dark Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewDescriptionPage() {
     val previewRace = HeroRaceDesc.Yordle()

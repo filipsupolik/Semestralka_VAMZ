@@ -1,6 +1,7 @@
 package com.example.vamz_semestralka_hero_journal_dnd.navigation
 
 import HeroClassDetailScreen
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -8,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.classes
 import com.example.vamz_semestralka_hero_journal_dnd.data.races
 import com.example.vamz_semestralka_hero_journal_dnd.data.regions
@@ -81,6 +81,7 @@ fun NavigationBetweenScreens(navController: NavHostController, viewModel: Charac
                 onCreateCharacter = {
                 navController.navigate(Screen.NameChoosing.route)
             }, onShowStatsOfCharacter = {characterName ->
+                viewModel.setSelectedPlayerName(characterName)
                 navController.navigate(Screen.ShowHero.createRoute(characterName))
             },
                 onBack = {
@@ -140,6 +141,7 @@ fun NavigationBetweenScreens(navController: NavHostController, viewModel: Charac
                 listOfDifferentTypes = races,
                 characterCreationViewModel = viewModel,
                 onNextPage = { raceName ->
+                    Log.d("RaceNav", "Navigating to race: $raceName")
                     navController.navigate(Screen.RacePage.createRoute(raceName = raceName))
                 },
                 onBack = {
@@ -178,8 +180,8 @@ fun NavigationBetweenScreens(navController: NavHostController, viewModel: Charac
 
         composable(route = Screen.ClassPage.route){
             HeroClassDetailScreen(
-                heroClass = navigationState.characterClass ?: HeroClassDesc.Rogue(),
-                imageRes = navigationState.characterClass?.imageRes,
+                heroClass = navigationState.characterClass,
+                imageRes = navigationState.characterClass.imageRes,
                 characterCreationViewModel = viewModel,
                 onNextPage = {
                     navController.navigate(Screen.Summary.route)

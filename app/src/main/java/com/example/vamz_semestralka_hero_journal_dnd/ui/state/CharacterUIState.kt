@@ -27,6 +27,7 @@ data class CharacterUIState(
 
     val playerSpell: Spell? = null,
 
+    val selectedPlayerName:String = "",
     val selectedLanguage: String = "",
     val selectedSubRace: SubRace? = null,
     val selectedMethodStatsCounting: StatMethod = StatMethod.ROLL,
@@ -61,5 +62,5 @@ data class CharacterUIState(
     val totalHP: Int = 20,
     val playerLevel: Int = 1,
     val XpToAdd: Int  = 0,
-    val currentHP: Int = 20
+    val currentHP: Int = 20,
 )

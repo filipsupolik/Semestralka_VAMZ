@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,7 +63,7 @@ fun HeroJournalMainPageTopAppBar(modifier: Modifier = Modifier ) {
 fun MainPageButton(description: String, id: Int , onCharacterCreation: () -> Unit ,modifier: Modifier = Modifier) {
     Box(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(dimensionResource(R.dimen.padding_medium))
             .alpha(0.9f)
     ){
         Button(

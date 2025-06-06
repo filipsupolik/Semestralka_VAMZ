@@ -59,7 +59,7 @@ fun RegionPage(viewModel: CharacterCreationViewModel, onNextPage: () -> Unit, on
                                 onBack()
                             },
                         ) {
-                            Text(text = stringResource(R.string.Back_button_label))
+                            Text(text = stringResource(R.string.back_label_button))
                         }
 
                         Spacer(modifier = Modifier.weight(1f))
