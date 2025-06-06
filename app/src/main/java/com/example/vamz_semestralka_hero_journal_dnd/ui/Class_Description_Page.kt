@@ -1,6 +1,7 @@
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,10 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -23,9 +27,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,11 +58,13 @@ fun HeroClassDetailScreen(
     imageRes: Int?,
     characterCreationViewModel: CharacterCreationViewModel,
     onNextPage: () -> Unit,
-    onBack: () -> Boolean
+    onBack: () -> Unit
 ) {
     val characterUIState by characterCreationViewModel.uiState.collectAsState()
-    var mExpanded by remember { mutableStateOf(false) }
     var descriptionDialogSpell by remember { mutableStateOf<Spell?>(null) }
+    val classDescriptionScrollState = rememberScrollState()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
 
     Scaffold(
         topBar = {
@@ -76,6 +84,7 @@ fun HeroClassDetailScreen(
                         )
                     }
                 },
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -89,11 +98,13 @@ fun HeroClassDetailScreen(
         }
     ) { innerPadding ->
 
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(16.dp)
+                .verticalScroll(state = classDescriptionScrollState)
         ) {
             imageRes?.let { painterResource(id = it) }?.let {
                 Image(
@@ -125,38 +136,22 @@ fun HeroClassDetailScreen(
             Text("Choose ${heroClass.skillChoices} skills:", style = MaterialTheme.typography.titleMedium)
 
             Column(Modifier.padding(20.dp)) {
-                DropdownMenu(
-                    expanded = mExpanded,
-                    onDismissRequest = { mExpanded = false },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    heroClass.skills.forEach { label ->
-                        DropdownMenuItem(
-                            text = { Text(text = label) },
-                            onClick = {
-                                characterCreationViewModel.setPlayerSkill(label)
-                                mExpanded = false
-                            }
-                        )
+                DropdownSelector(
+                    label = stringResource(R.string.choose_a_skill),
+                    selectedOption = characterUIState.playerSkill.first,
+                    options = heroClass.skills,
+                    onOptionSelected = { skill->
+                        characterCreationViewModel.setPlayerSkill(skill)
                     }
-                }
-                DropdownMenu(
-                    expanded = mExpanded,
-                    onDismissRequest = { mExpanded = false },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    heroClass.skills.forEach { label ->
-                        DropdownMenuItem(
-                            text = { Text(text = label) },
-                            onClick = {
-                                characterCreationViewModel.setPlayerSkill(label)
-                                mExpanded = false
-                            }
-                        )
+                )
+                DropdownSelector(
+                    label = stringResource(R.string.choose_a_skill),
+                    options = characterUIState.characterClass.skills.filterNot { it in characterUIState.playerSkill.first},
+                    selectedOption = characterUIState.playerSkill.second,
+                    onOptionSelected = {skill->
+                        characterCreationViewModel.setPlayerSkill(skill)
                     }
-                }
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -189,7 +184,31 @@ fun HeroClassDetailScreen(
                 }
             }
             Spacer(modifier = Modifier.height(24.dp))
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            Button(
+                onClick = {
+                    characterCreationViewModel.resetRegion()
+                    onBack()
+                }
+            ) {
+                Text(text = "Back")
+            }
 
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    onNextPage()
+                },
+                enabled = characterUIState.playerSkill.toList().isNotEmpty() && characterUIState.playerSpell != null
+            ) {
+                Text(text = "Next")
+            }
         }
     }
 
@@ -210,6 +229,48 @@ fun HeroClassDetailScreen(
                     Button(onClick = { descriptionDialogSpell = null }, modifier = Modifier.align(Alignment.End)) {
                         Text("Close")
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DropdownSelector(
+    label: String,
+    options: List<String>,
+    selectedOption: String?,
+    onOptionSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp)) {
+        Text(text = label)
+        Box {
+            OutlinedTextField(
+                value = selectedOption ?: "",
+                onValueChange = onOptionSelected,
+                modifier = Modifier.fillMaxWidth(),
+                readOnly = true,
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Show options arrow",
+                        Modifier.clickable { expanded = true }
+                    )
+                }
+            )
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach {
+                    DropdownMenuItem(
+                        text = { Text(it) },
+                        onClick = {
+                            onOptionSelected(it)
+                            expanded = false
+                        }
+                    )
                 }
             }
         }

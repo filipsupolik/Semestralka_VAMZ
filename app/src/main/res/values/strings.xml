@@ -25,4 +25,5 @@
     <string name="Region_page_image_contentDescription">Image of the %1$s</string>
     <string name="Back_button_label">Back</string>
     <string name="next_button_label">Next</string>
+    <string name="choose_a_skill">Choose a skill</string>
 </resources>

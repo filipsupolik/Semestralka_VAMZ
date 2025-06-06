@@ -17,7 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -63,74 +62,34 @@ fun HeroRace_Description_Page(
     Scaffold (
         topBar = {
             CharacterPageTopAppBar(viewModel = characterCreationViewModel ,description,modifier = Modifier, onBackClick = onBack, onNextClick = onNextPage)
-        },
-        bottomBar = {
-            BottomAppBar(
-                actions = {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        Button(
-                            onClick = {
-                                characterCreationViewModel.resetRegion()
-                                onBack()
-                            },
-                        ) {
-                            Text(text = "Back")
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Button(
-                            onClick = {
-                                characterCreationViewModel.setRegion(
-                                    name = characterState.playerRegion.regionName
-                                )
-                                characterCreationViewModel.setPlayerSubRace(
-                                    subRace = characterState.selectedSubRace
-                                )
-                                characterCreationViewModel.setPlayerLanguage(
-                                    language = characterState.selectedLanguage
-                                )
-                                characterCreationViewModel.calculateBAseAttribute(
-                                    race = characterState.characterRace,
-                                    subRace = characterState.selectedSubRace
-                                )
-                                onNextPage()
-                            }
-                        ) {
-                            Text(text = "Next")
-                        }
-                    }
-                }
-            )
         }
     ) { innerPadding ->
 
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
+                .fillMaxSize()
         )
         {
-                Image(
-                    painter = painterResource(id = characterState.characterRace.imageRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                )
-        }
-            Column(
+            Image(
+                painter = painterResource(id = characterState.characterRace.imageRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 250.dp)
+                    .height(300.dp)
+            )
+        }
+        Box(
+            modifier = Modifier.fillMaxSize().verticalScroll(scrollState)
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 280.dp)
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .background(Color.LightGray)
                     .padding(16.dp)
-                    .verticalScroll(state = scrollState, enabled = true)
             ) {
                 Text(
                     text = race?.name ?: "",
@@ -183,10 +142,46 @@ fun HeroRace_Description_Page(
                     )
 
                     SubraceSection(selectedSubrace = characterState.selectedSubRace)
+
+                    Spacer(modifier = Modifier.height(32.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                characterCreationViewModel.resetRegion()
+                                onBack()
+                            }
+                        ) {
+                            Text(text = "Back")
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Button(
+                            onClick = {
+                                characterCreationViewModel.setRegion(name = characterState.playerRegion.regionName)
+                                characterCreationViewModel.setPlayerSubRace(characterState.selectedSubRace)
+                                characterCreationViewModel.setPlayerLanguage(characterState.selectedLanguage)
+                                characterCreationViewModel.calculateBAseAttribute(
+                                    race = characterState.characterRace,
+                                    subRace = characterState.selectedSubRace
+                                )
+                                onNextPage()
+                            },
+                            enabled = characterState.selectedSubRace != null && characterState.selectedLanguage.isNotBlank()
+                        ) {
+                            Text(text = "Next")
+                        }
+                    }
                 }
             }
         }
     }
+}
 
 @Composable
 fun TraitCard(name: String, description: String) {
@@ -313,9 +308,7 @@ fun SubraceSection(selectedSubrace: SubRace?) {
             TraitCard(name = it.name, description = it.desc)
         }
 
-        Text(
-            text = "Subrace Abilities: " +
-                    selectedSubrace.extraStats.entries.joinToString { "${it.key} +${it.value}" }
+        TraitCard(name = "Subrace Abilities", selectedSubrace.extraStats.entries.joinToString { "${it.key} +${it.value}" }
         )
     }
 }

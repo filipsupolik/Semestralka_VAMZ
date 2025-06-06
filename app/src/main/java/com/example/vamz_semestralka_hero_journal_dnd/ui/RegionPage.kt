@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -87,7 +89,10 @@ fun RegionPage(viewModel: CharacterCreationViewModel, onNextPage: () -> Unit, on
                     R.string.Region_page_image_contentDescription,
                     regionState.playerRegion.regionName
                 ),
-                modifier = Modifier.fillMaxWidth()
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f / 9f)
             )
 
             Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)))
@@ -141,9 +146,14 @@ fun RegionTopAppBar(title: String, onBackPage:() -> Unit, onNextPage: () -> Unit
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(
+    name = "Portrait Preview",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=411dp,height=891dp,dpi=420"
+)
 @Composable
-fun RegionPagePreview() {
+fun RegionPagePortraitPreview() {
     val fakeViewModel: CharacterCreationViewModel = viewModel()
     RegionPage(
         viewModel = fakeViewModel,
@@ -151,4 +161,21 @@ fun RegionPagePreview() {
         onBack = {}
     )
 }
+
+@Preview(
+    name = "Landscape Preview",
+    showBackground = true,
+    showSystemUi = true,
+    device = "spec:width=891dp,height=411dp,dpi=420" // landscape
+)
+@Composable
+fun RegionPageLandscapePreview() {
+    val fakeViewModel: CharacterCreationViewModel = viewModel()
+    RegionPage(
+        viewModel = fakeViewModel,
+        onNextPage = {},
+        onBack = {}
+    )
+}
+
 

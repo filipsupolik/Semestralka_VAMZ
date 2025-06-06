@@ -162,4 +162,97 @@ class CharacterCreationViewModel: ViewModel() {
             )
         }
     }
+
+    fun setBaseValues(value: Int){
+        _uiState.update {currentState ->
+            currentState.copy(
+                baseValue = currentState.baseValue.mapValues { value }
+            )
+        }
+    }
+
+    fun setTotalStat(attribute: RaceAttributes, value: Int) {
+        _uiState.update { current ->
+            current.copy(
+                totalStatsValue = current.totalStatsValue.toMutableMap().apply {
+                    this[attribute] = value
+                }
+            )
+        }
+    }
+
+    fun updateBaseValue(attribute: RaceAttributes, value: Int) {
+        _uiState.update { current ->
+            current.copy(
+                baseValue = current.baseValue.toMutableMap().apply {
+                    this[attribute] = value
+                }
+            )
+        }
+    }
+
+    fun resetAbilities() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                baseValue = currentState.baseValue.mapValues { 0 },
+                totalStatsValue = currentState.totalStatsValue.mapValues { 0 }.toMutableMap(),
+                remainingPoints = 27
+            )
+
+        }
+    }
+
+    fun addExperience(amount: Int) {
+        _uiState.update { currentState ->
+            var newXP = currentState.playerXP + amount
+            var newLevel = currentState.playerLevel
+            var xpToNext = currentState.playerXPToNextLvl
+
+            while (newXP >= xpToNext) {
+                newXP -= xpToNext
+                newLevel++
+                xpToNext += 50
+            }
+
+            currentState.copy(
+                playerXP = newXP,
+                playerLevel = newLevel,
+                playerXPToNextLvl = xpToNext
+            )
+        }
+    }
+
+    fun incrementTempXp() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                XpToAdd = currentState.XpToAdd + 1
+            )
+        }
+    }
+
+    fun decrementTempXp() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                XpToAdd = if (currentState.XpToAdd <= 0) 0 else currentState.XpToAdd - 1
+            )
+        }
+    }
+
+    fun increaseHp() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentHP = if (currentState.currentHP >= currentState.totalHP) currentState.totalHP else currentState.currentHP + 1
+            )
+        }
+    }
+
+    fun decreaseHp() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                XpToAdd = if (currentState.XpToAdd <= 0) 0 else currentState.XpToAdd - 1
+            )
+        }
+    }
+
+
 }

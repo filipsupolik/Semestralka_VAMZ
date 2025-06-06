@@ -18,6 +18,8 @@ data class CharacterUIState(
     val characterSubRace: SubRace? = null,
     val playerRegion: Region = Region.Ionia,
     val playerLanguages: List<String> = emptyList(),
+    val playerXP: Int = 0,
+    val playerXPToNextLvl: Int = 100,
 
     val playerSkill: Pair<String, String> = "" to "",
     val allCharacters: List<HeroProfile> = emptyList(),
@@ -32,12 +34,12 @@ data class CharacterUIState(
     var remainingPoints: Int = 27,
 
     val baseValue: Map<RaceAttributes, Int> = mutableMapOf(
-        RaceAttributes.STR to 3,
-        RaceAttributes.CHA to 3,
-        RaceAttributes.WIS to 3,
-        RaceAttributes.CON to 3,
-        RaceAttributes.INT to 3,
-        RaceAttributes.DEX to 3,
+        RaceAttributes.STR to 0,
+        RaceAttributes.CHA to 0,
+        RaceAttributes.WIS to 0,
+        RaceAttributes.CON to 0,
+        RaceAttributes.INT to 0,
+        RaceAttributes.DEX to 0,
     ),
 
     val raceStats: MutableMap<RaceAttributes, Int> = mutableMapOf(
@@ -58,4 +60,6 @@ data class CharacterUIState(
     ),
     val totalHP: Int = 20,
     val playerLevel: Int = 1,
+    val XpToAdd: Int  = 0,
+    val currentHP: Int = 20
 )

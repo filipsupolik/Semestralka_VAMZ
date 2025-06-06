@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -33,11 +34,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
+import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
+import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.ui.theme.Shapes
 
@@ -130,7 +133,7 @@ fun CharacterPage(
 @Composable
 fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(dimensionResource(R.dimen.padding_small)),
         colors = CardDefaults.cardColors(
@@ -138,7 +141,7 @@ fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
         )
     ) {
         Row(
-            modifier = Modifier.width(220.dp),
+            modifier = Modifier.widthIn(min = 250.dp, max = 300.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -146,8 +149,12 @@ fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
             HeroItemDescription(
                 name = heroProfile.name,
                 raceOfHero = heroProfile.descriptionCharacterRace,
-                classOfHero = heroProfile.descriptionCharacterClass ,
+                classOfHero = heroProfile.descriptionCharacterClass,
+                modifier = Modifier.weight(1f)
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
             HeroItemLvl(
                 level = heroProfile.lvl,
             )
@@ -173,20 +180,32 @@ fun HeroItemIcon(paintResource: Int,modifier: Modifier = Modifier) {
 @Composable
 fun HeroItemDescription(raceOfHero: String,classOfHero: String,name: String,modifier: Modifier = Modifier) {
     Column(
-        modifier = Modifier.width(90.dp)
+        modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = name
+            text = name,
+            maxLines = 1,
+            overflow = TextOverflow.Visible,
+            style = MaterialTheme.typography.bodyMedium
         )
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = raceOfHero
+                text = raceOfHero,
+                maxLines = 1,
+                overflow = TextOverflow.Visible,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall
             )
             Text(
-                text = classOfHero
+                text = classOfHero,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
@@ -208,6 +227,14 @@ fun HeroItemLvl(level: Int,modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun ListOfHeroesPreview(){
-    val viewModel: CharacterCreationViewModel = viewModel()
-    CharacterPage(onCreateCharacter = {}, onShowStatsOfCharacter = {}, onBack = {}, viewModel = viewModel)
+    HeroItem(
+        heroProfile = HeroProfile(
+            imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
+            name = "slfhnksjdfnksd",
+            descriptionCharacterRace = HeroRaceDesc.DarkinBorn().name,
+            descriptionCharacterClass = HeroClassDesc.Paladin().name,
+            lvl = 1,
+            lvlDescription = R.string.level
+        )
+    )
 }

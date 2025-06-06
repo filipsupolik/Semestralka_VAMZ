@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -28,7 +30,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,13 +53,15 @@ fun AbilityScreen(
 ) {
     val statsPageState by completeCharacterCreationViewModel.uiState.collectAsState()
     var selectedMethod: StatMethod by remember { mutableStateOf(StatMethod.ROLL) }
-    val baseValues = remember { mutableStateMapOf<String, Int>().apply { statsPageState.raceStats.forEach { this[it.key.name] = 3 } } }
 Scaffold(
     topBar = {
         StatsCheckTopAppBar(viewModel = completeCharacterCreationViewModel,modifier, onNextPage = onNextPage, onBackClick = onBack)
     }
 ) {innerPadding ->
-    Column(modifier = Modifier.padding(innerPadding)) {
+    Column(modifier = Modifier
+        .padding(innerPadding)
+        .verticalScroll(state = rememberScrollState())
+    ) {
         Text("Abilities", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -71,13 +74,13 @@ Scaffold(
                         selectedMethod = method
                         when (method) {
                             StatMethod.ROLL -> {
-                                statsPageState.raceStats.forEach { baseValues[it.key.name] = 3 }
+                                completeCharacterCreationViewModel.setBaseValues(3)
                             }
                             StatMethod.STANDARD_ARRAY -> {
-                                statsPageState.raceStats.forEach { baseValues[it.key.name] = -1 }
+                                completeCharacterCreationViewModel.setBaseValues(-1)
                             }
                             StatMethod.POINT_BUY -> {
-                                statsPageState.raceStats.forEach { baseValues[it.key.name] = 8 }
+                                completeCharacterCreationViewModel.setBaseValues(8)
                             }
                         }
                     }
@@ -92,25 +95,55 @@ Scaffold(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        statsPageState.totalStatsValue.forEach { stat ->
+        statsPageState.baseValue.forEach { (attribute, base) ->
+            val bonus = statsPageState.raceStats[attribute] ?: 0
+
             AbilityRow(
-                label = stat.key.name,
-                base = baseValues[stat.key.name] ?: 0,
-                raceBonus = stat.value ?: 0,
-                method = selectedMethod,
+                label = attribute.name,
+                base = base,
+                raceBonus = bonus,
+                method = statsPageState.selectedMethodStatsCounting,
                 onBaseChange = { newValue ->
-                    val current = baseValues[stat.key.name  ] ?: 0
-                    if (selectedMethod == StatMethod.POINT_BUY) {
+                    val current = statsPageState.baseValue[attribute] ?: 0
+
+                    if (statsPageState.selectedMethodStatsCounting == StatMethod.POINT_BUY) {
                         val cost = pointBuyCost(newValue) - pointBuyCost(current)
                         if (statsPageState.remainingPoints - cost >= 0 && newValue in 8..15) {
-                            baseValues[stat.key.name] = newValue
+                            completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
                             completeCharacterCreationViewModel.setRemainingStatsPoints(cost)
                         }
                     } else {
-                        baseValues[stat.key.name] = newValue
+                        completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
                     }
+
+                    completeCharacterCreationViewModel.setTotalStat(attribute, newValue + bonus)
                 }
             )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            Button(
+                onClick = {
+                    completeCharacterCreationViewModel.resetAbilities()
+                    onBack()
+                }
+            ) {
+                Text(text = "Back")
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Button(
+                onClick = {
+                    completeCharacterCreationViewModel.addCreatedCharacterToList()
+                    onNextPage()
+                },
+            ) {
+                Text(text = "Next")
+            }
         }
     }
 }
