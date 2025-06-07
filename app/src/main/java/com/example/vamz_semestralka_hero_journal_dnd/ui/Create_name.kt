@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -16,23 +17,30 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 @Composable
-fun CharacterNameChoice(modifier: Modifier = Modifier) {
-    var nameOfCharacter by remember { mutableStateOf("") }
+fun CharacterNameChoice(
+    characterCreationViewModel: CharacterCreationViewModel,
+    modifier: Modifier = Modifier,
+    onRaceSelection: () -> Unit,
+    onHome: () -> Unit
+) {
+    val characterUIState by characterCreationViewModel.uiState.collectAsState()
     Box{
         Image(
             painter = painterResource(R.drawable._86992),
@@ -49,7 +57,8 @@ fun CharacterNameChoice(modifier: Modifier = Modifier) {
         ) {
             CreateNameTitle()
             CreateNameTextField(
-                nameOfCharacter = nameOfCharacter
+                nameOfCharacter = characterUIState.playerName,
+                onUserNameChanged = { characterCreationViewModel.setName(it) }
             )
             Row(
                 modifier = Modifier
@@ -57,17 +66,23 @@ fun CharacterNameChoice(modifier: Modifier = Modifier) {
                     .padding(dimensionResource(R.dimen.padding_medium)),
                 horizontalArrangement = Arrangement.Start
             ) {
-                CreateNameAddButton()
-                CreateNameCancelButton()
+                CreateNameAddButton(
+                    onNextPage = onRaceSelection
+                )
+                CreateNameCancelButton(
+                    onBack = onHome
+                )
             }
         }
     }
 }
 
 @Composable
-fun CreateNameCancelButton(modifier: Modifier = Modifier) {
+fun CreateNameCancelButton(modifier: Modifier = Modifier, onBack: () -> Unit) {
     Button(
-        onClick = { },
+        onClick = {
+            onBack()
+        },
         modifier = modifier
     ) {
         Text(
@@ -77,9 +92,14 @@ fun CreateNameCancelButton(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CreateNameAddButton(modifier: Modifier = Modifier) {
+fun CreateNameAddButton(
+    modifier: Modifier = Modifier,
+    onNextPage: () -> Unit
+) {
     Button(
-        onClick = { },
+        onClick = {
+            onNextPage()
+        },
         modifier = modifier
     ) {
         Text(
@@ -89,15 +109,24 @@ fun CreateNameAddButton(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun CreateNameTextField(nameOfCharacter: String,modifier: Modifier = Modifier) {
+fun CreateNameTextField(
+    nameOfCharacter: String,
+    onUserNameChanged: (String) -> Unit,
+    modifier: Modifier = Modifier) {
+    val keyboard = LocalSoftwareKeyboardController.current
     OutlinedTextField(
         value = nameOfCharacter,
-        onValueChange = {},
+        onValueChange = onUserNameChanged,
         label = { Text(
             text = stringResource(R.string.name_text_field_label),
             color = Color.White
         ) },
-        keyboardOptions = KeyboardOptions.Default,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = { keyboard?.hide() }
+        ),
         modifier = Modifier
             .fillMaxWidth()
             .padding(dimensionResource(R.dimen.padding_medium)),
@@ -122,5 +151,10 @@ fun CreateNameTitle(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun AddNamePreview() {
-    CharacterNameChoice()
+    val viewModel: CharacterCreationViewModel = viewModel()
+    CharacterNameChoice(
+        characterCreationViewModel = viewModel,
+        onRaceSelection = {},
+        onHome = {}
+    )
 }

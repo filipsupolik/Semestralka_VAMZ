@@ -5,8 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Surface
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
-import com.example.vamz_semestralka_hero_journal_dnd.ui.ListOfHeroesTopAppBar
+import com.example.vamz_semestralka_hero_journal_dnd.navigation.NavigationBetweenScreens
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -15,7 +18,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             AppTheme {
                 Surface {
-                    ListOfHeroesTopAppBar()
+                    val navController = rememberNavController()
+                    val viewModel: CharacterCreationViewModel = viewModel()
+                    NavigationBetweenScreens(navController, viewModel)
                 }
             }
         }
