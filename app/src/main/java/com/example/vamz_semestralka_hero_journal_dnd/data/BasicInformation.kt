@@ -6,6 +6,13 @@ enum class RaceSize{
     SMALL, MEDIUM, LARGE
 }
 
+
+enum class StatMethod(val label: String) {
+    ROLL("Roll"),
+    STANDARD_ARRAY("Standard Array"),
+    POINT_BUY("Point Buy")
+}
+
 enum class RaceAttributes(attr: String){
     STR("STR"),
     DEX("DEX"),

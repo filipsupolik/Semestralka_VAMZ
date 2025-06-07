@@ -1,5 +1,6 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui.state
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
@@ -8,7 +9,9 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
 import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
+import com.example.vamz_semestralka_hero_journal_dnd.data.StatMethod
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
+import com.example.vamz_semestralka_hero_journal_dnd.data.regions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -133,18 +136,32 @@ class CharacterCreationViewModel: ViewModel() {
     }
 
     fun addCreatedCharacterToList(){
+        val newCharacter = HeroProfile(
+            imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
+            lvlDescription = R.string.level,
+            name = _uiState.value.playerName,
+            characterRace = _uiState.value.characterRace,
+            characterClass = _uiState.value.characterClass,
+            characterSubRace = _uiState.value.characterSubRace,
+            raceStats = _uiState.value.raceStats,
+            totalStatsValue = _uiState.value.totalStatsValue,
+            hp = 20,
+            maxHp = 20,
+            attributes = _uiState.value.totalStatsValue.toMap(),
+            languages = _uiState.value.playerLanguages,
+            skills = _uiState.value.playerSkill,
+            spell = _uiState.value.playerSpell,
+            region = _uiState.value.playerRegion
+        )
+
+
         _uiState.update {currentState ->
             currentState.copy(
-                allCharacters = currentState.allCharacters.plus(HeroProfile(
-                    imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
-                    lvlDescription = R.string.level,
-                    name = currentState.playerName,
-                    descriptionCharacterRace = currentState.characterRace.name,
-                    descriptionCharacterClass = currentState.characterClass.name,
-                    lvl = currentState.playerLevel
-                ))
+                allCharacters = currentState.allCharacters.plus(newCharacter)
             )
         }
+
+        Log.d("CreateChar", "All characters: ${_uiState.value.allCharacters}")
     }
 
     fun setSelectedLanguage(language: String) {
@@ -198,60 +215,25 @@ class CharacterCreationViewModel: ViewModel() {
                 totalStatsValue = currentState.totalStatsValue.mapValues { 0 }.toMutableMap(),
                 remainingPoints = 27
             )
-
-        }
-    }
-
-    fun addExperience(amount: Int) {
-        _uiState.update { currentState ->
-            var newXP = currentState.playerXP + amount
-            var newLevel = currentState.playerLevel
-            var xpToNext = currentState.playerXPToNextLvl
-
-            while (newXP >= xpToNext) {
-                newXP -= xpToNext
-                newLevel++
-                xpToNext += 50
-            }
-
-            currentState.copy(
-                playerXP = newXP,
-                playerLevel = newLevel,
-                playerXPToNextLvl = xpToNext
-            )
-        }
-    }
-
-    fun incrementTempXp() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                XpToAdd = currentState.XpToAdd + 1
-            )
-        }
-    }
-
-    fun decrementTempXp() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                XpToAdd = if (currentState.XpToAdd <= 0) 0 else currentState.XpToAdd - 1
-            )
         }
     }
 
     fun increaseHp() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                currentHP = if (currentState.currentHP >= currentState.totalHP) currentState.totalHP else currentState.currentHP + 1
-            )
-        }
+        val currentHero = getChosenHeroProfile(_uiState.value.selectedPlayerName)
+        currentHero?.copy(
+            hp = if (currentHero.hp >= currentHero.maxHp) currentHero.maxHp else currentHero.hp + 1
+        )
+
+        updateHero(currentHero!!)
     }
 
     fun decreaseHp() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                currentHP = if (currentState.currentHP <= 0) 0 else currentState.currentHP - 1
-            )
-        }
+        val currentHero = getChosenHeroProfile(_uiState.value.selectedPlayerName)
+        currentHero?.copy(
+            hp = if (currentHero.hp <= 0) currentHero.maxHp else currentHero.hp - 1
+        )
+
+        updateHero(currentHero!!)
     }
 
     fun deleteCharacterFromList(name: String) {
@@ -274,16 +256,87 @@ class CharacterCreationViewModel: ViewModel() {
     fun reset() {
         _uiState.update {
             it.copy(
-                selectedLanguage = "",
-                selectedSubRace = null,
-                playerName = "",
+                playerName= "",
                 characterRace = HeroRaceDesc.Human(),
                 characterClass = HeroClassDesc.Paladin(),
-                playerLanguages = emptyList(),
-                playerRegion = Region.Ionia,
-                playerSkill = Pair("", ""),
+                characterSubRace = null,
+                playerRegion= Region.Ionia,
+                playerLanguages= emptyList(),
+                playerXP= 0,
+                playerXPToNextLvl= 100,
+
+                playerSkill = "" to "",
+                listOfRegions= regions,
+
                 playerSpell = null,
-                remainingPoints = 27,
+
+                selectedPlayerName= "",
+                selectedLanguage= "",
+                selectedSubRace = null,
+                selectedMethodStatsCounting= StatMethod.ROLL,
+
+                remainingPoints= 27,
+
+                baseValue= mutableMapOf(
+                    RaceAttributes.STR to 0,
+                    RaceAttributes.CHA to 0,
+                    RaceAttributes.WIS to 0,
+                    RaceAttributes.CON to 0,
+                    RaceAttributes.INT to 0,
+                    RaceAttributes.DEX to 0,
+            ),
+
+            raceStats = mutableMapOf(
+                RaceAttributes.STR to 0,
+                RaceAttributes.CHA to 0,
+                RaceAttributes.WIS to 0,
+                RaceAttributes.CON to 0,
+                RaceAttributes.INT to 0,
+                RaceAttributes.DEX to 0,
+            ),
+            totalStatsValue = mutableMapOf(
+                RaceAttributes.STR to 0,
+                RaceAttributes.CHA to 0,
+                RaceAttributes.WIS to 0,
+                RaceAttributes.CON to 0,
+                RaceAttributes.INT to 0,
+                RaceAttributes.DEX to 0,
+            ),
+            )
+        }
+    }
+
+    fun setOpenDrawer(init: Boolean) {
+        _uiState.update {
+            it.copy(
+                openDrawer = init
+            )
+        }
+    }
+
+    fun getChosenHeroProfile(name: String): HeroProfile?{
+        return _uiState.value.allCharacters.find { it.name == name }
+    }
+
+    /*
+    * Metoda s ktorou mi pomahal ChatGPT opravit problem,
+    * metoda je pozmenena mnou aby robila to co som potreboval spravne
+    */
+    fun updateHero(heroToUpdate: HeroProfile) {
+        val updatedList = _uiState.value.allCharacters.map { hero ->
+            if (hero.name == heroToUpdate.name) heroToUpdate else hero
+        }
+        _uiState.update {
+            it.copy(
+                allCharacters = updatedList
+            )
+        }
+    }
+
+    fun setSelectedMethod(method: StatMethod) {
+        _uiState.update {
+            it.copy(
+                selectedMethodStatsCounting = method
             )
         }
     }

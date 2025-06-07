@@ -1,6 +1,10 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,8 +24,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
@@ -36,14 +42,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,21 +62,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
+import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
+import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterUIState
 
 @Composable
 fun CharacterStatsScreen(
     characterCreationViewModel: CharacterCreationViewModel,
     onBack: () -> Unit
 ) {
-    val characterState by characterCreationViewModel.uiState.collectAsState()
-    val openDrawer = remember { mutableStateOf(false) }
-    val isDialogOpen = remember { mutableStateOf(false) }
+        val characterState: CharacterUIState by characterCreationViewModel.uiState.collectAsState()
+        val currentHero = characterCreationViewModel.getChosenHeroProfile(characterState.selectedPlayerName)
 
         Scaffold(
             topBar = {
                 ShowHeroTopAppBar(onMenuClick = {
-                    openDrawer.value = true
+                    characterCreationViewModel.setOpenDrawer(true)
                 }, onBack = onBack)
             }
         ) { innerPadding ->
@@ -79,43 +85,16 @@ fun CharacterStatsScreen(
                 modifier = Modifier.padding(innerPadding),
                 viewModel = characterCreationViewModel,
                 onIncreaseHp = { characterCreationViewModel.increaseHp() },
-                onDecreaseHp = { characterCreationViewModel.decreaseHp() }
+                onDecreaseHp = { characterCreationViewModel.decreaseHp() },
+                currentHero = currentHero
             )
         }
 
-        AnimatedVisibility(visible = openDrawer.value) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 113.dp)
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.5f)
-                    .background(Color.White)
-                    .padding(dimensionResource(R.dimen.padding_medium))
-            ) {
-                SidePanelInfo(
-                    viewModel = characterCreationViewModel,
-                    onClose = { openDrawer.value = false },
-                    onAddXpClick = { isDialogOpen.value = true },
-                    onDelete = {
-                        onBack()
-                        characterCreationViewModel.deleteCharacterFromList(characterState.selectedPlayerName)
-                    }
-                )
-            }
-        }
-
-        if (isDialogOpen.value) {
-            TotalXpAddingDialog(
-                xpToAdd = characterState.XpToAdd,
-                onIncrement = { characterCreationViewModel.incrementTempXp() },
-                onDecrement = { characterCreationViewModel.decrementTempXp() },
-                onCancel = { isDialogOpen.value = false },
-                onConfirm = {
-                    characterCreationViewModel.addExperience(characterState.XpToAdd)
-                    isDialogOpen.value = false
-                }
-            )
-        }
+        SidePanel(
+            viewModel = characterCreationViewModel,
+            onBack = onBack,
+            currentHero = currentHero
+        )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,13 +130,50 @@ fun ShowHeroTopAppBar(onMenuClick: () -> Unit, onBack: () -> Unit) {
 }
 
 @Composable
+fun SidePanel(
+    viewModel: CharacterCreationViewModel,
+    onBack: () -> Unit,
+    currentHero: HeroProfile?
+)
+{
+    val characterState by viewModel.uiState.collectAsState()
+
+    AnimatedVisibility(
+        enter = fadeIn() + slideInHorizontally(),
+        exit = fadeOut() + slideOutHorizontally(),
+        visible = characterState.openDrawer,
+        modifier = Modifier.verticalScroll(state = rememberScrollState())
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(top = 113.dp)
+                .fillMaxHeight()
+                .fillMaxWidth(0.5f)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(dimensionResource(R.dimen.padding_medium))
+        ) {
+            SidePanelInfo(
+                currentHero = currentHero,
+                onClose = { viewModel.setOpenDrawer(false) },
+                onDelete = {
+                    onBack()
+                    viewModel.deleteCharacterFromList(characterState.selectedPlayerName)
+                }
+            )
+        }
+    }
+}
+
+@Composable
 fun CharacterStatsMainPage(
     modifier: Modifier,
     viewModel: CharacterCreationViewModel,
     onIncreaseHp: () -> Unit,
-    onDecreaseHp: () -> Unit
+    onDecreaseHp: () -> Unit,
+    currentHero: HeroProfile?
 ) {
     val  characterState by viewModel.uiState.collectAsState()
+
 
     Column(
         modifier = modifier
@@ -184,9 +200,12 @@ fun CharacterStatsMainPage(
                 Icon(Icons.Default.FavoriteBorder, contentDescription = stringResource(R.string.remove_hp))
             }
 
+
+
             LinearProgressIndicator(
                 progress = {
-                    (characterState.currentHP.toFloat() / (characterState.totalHP.takeIf { it > 0 } ?: 1)).coerceIn(0f, 1f)
+                    ((currentHero?.hp?.toFloat()
+                        ?: 0f) / (currentHero?.hp?: 1)).coerceIn(0f, 1f)
                 },
                 modifier = Modifier
                     .weight(1f)
@@ -202,8 +221,8 @@ fun CharacterStatsMainPage(
         Text(
             text = stringResource(
                 R.string.hp_value,
-                characterState.currentHP,
-                characterState.totalHP
+                currentHero?.hp?:0,
+                currentHero?.maxHp?:0
             ),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
@@ -223,8 +242,8 @@ fun CharacterStatsMainPage(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            items(characterState.raceStats.toList()) {(key, value) ->
-                StatCard(key.name, value.toString(), width = 76.dp)
+            items(currentHero?.raceStats?.toList()?: emptyList()) {(key, value) ->
+                StatCard(title = key.name, abilititesValue = value.toString())
             }
         }
 
@@ -242,7 +261,7 @@ fun CharacterStatsMainPage(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            items(characterState.totalStatsValue.toList()) {(key, value) ->
+            items(currentHero?.totalStatsValue?.toList()?: emptyList()) {(key, value) ->
                 StatCard(key.name,
                     stringResource(
                         R.string.abilities_values,
@@ -257,12 +276,10 @@ fun CharacterStatsMainPage(
 
 @Composable
 fun SidePanelInfo(
-    viewModel: CharacterCreationViewModel,
+    currentHero: HeroProfile?,
     onClose: () -> Unit,
-    onAddXpClick: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val characterUIState by viewModel.uiState.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -278,7 +295,7 @@ fun SidePanelInfo(
         )
 
         Text(
-            text = characterUIState.playerName,
+            text = currentHero?.name?:"",
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -287,10 +304,9 @@ fun SidePanelInfo(
 
         Text(
             text = stringResource(
-                R.string.lvl,
-                characterUIState.playerLevel,
-                characterUIState.characterRace.name,
-                characterUIState.characterClass.name
+                R.string.sideBar_character_desc,
+                currentHero?.characterRace?.name?:"",
+                currentHero?.characterClass?.name?:""
             ),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier
@@ -298,53 +314,24 @@ fun SidePanelInfo(
                 .padding(bottom = 8.dp)
         )
 
-        LinearProgressIndicator(
-            progress = { characterUIState.playerXP.toFloat() / characterUIState.playerXPToNextLvl.coerceIn(0, 1) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.padding_medium),
-                    vertical = dimensionResource(R.dimen.padding_small)
-                ),
-        )
-
-        Text(
-            text = stringResource(
-                R.string.xp,
-                characterUIState.playerXP,
-                characterUIState.playerXPToNextLvl
-            ),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Button(
-            onClick = onAddXpClick,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(vertical = dimensionResource(R.dimen.padding_small))
-        ) {
-            Text(stringResource(R.string.plus_button_label))
-        }
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(stringResource(R.string.base_info_open_dialog_stats_page_title), style = MaterialTheme.typography.titleMedium)
-        Text(stringResource(R.string.name_in_side_panel, characterUIState.playerName), style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.name_in_side_panel, currentHero?.name?:""), style = MaterialTheme.typography.bodyMedium)
         Text(
             stringResource(
                 R.string.class_name_side_panel_stats_page,
-                characterUIState.characterClass.name
+                currentHero?.characterClass?.name?:""
             ), style = MaterialTheme.typography.bodyMedium)
         Text(
             stringResource(
                 R.string.race_name_stats_page_side_panel,
-                characterUIState.characterRace.name
+                currentHero?.characterRace?.name?:""
             ), style = MaterialTheme.typography.bodyMedium)
         Text(
             stringResource(
                 R.string.region_name_stats_page_side_panel,
-                characterUIState.playerRegion.regionName
+                currentHero?.region?.regionName?:""
             ), style = MaterialTheme.typography.bodyMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -369,7 +356,7 @@ fun SidePanelInfo(
 
 
 @Composable
-fun StatCard(title: String, value: String, width: Dp = 120.dp) {
+fun StatCard(title: String, abilititesValue: String, width: Dp = 120.dp) {
     Column(
         modifier = Modifier
             .width(width)
@@ -380,13 +367,14 @@ fun StatCard(title: String, value: String, width: Dp = 120.dp) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(title, style = MaterialTheme.typography.bodySmall)
-        Text(value, style = MaterialTheme.typography.headlineMedium)
+        Text(abilititesValue, style = MaterialTheme.typography.headlineMedium)
     }
 }
 
 @Composable
 fun TotalXpAddingDialog(
     xpToAdd: Int,
+    onXpChange: (String) -> Unit,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     onCancel: () -> Unit,
@@ -415,7 +403,12 @@ fun TotalXpAddingDialog(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Text(text = xpToAdd.toString())
+                OutlinedTextField(
+                    value = xpToAdd.toString(),
+                    onValueChange = onXpChange,
+                    singleLine = true,
+                    modifier = Modifier.width(100.dp)
+                )
 
                 Spacer(modifier = Modifier.width(16.dp))
 

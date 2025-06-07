@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +40,7 @@ import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
+import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.ui.theme.Shapes
 
@@ -148,15 +148,9 @@ fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
             HeroItemIcon(paintResource = heroProfile.imageResourceId)
             HeroItemDescription(
                 name = heroProfile.name,
-                raceOfHero = heroProfile.descriptionCharacterRace,
-                classOfHero = heroProfile.descriptionCharacterClass,
+                raceOfHero = heroProfile.characterRace.name,
+                classOfHero = heroProfile.characterClass.name,
                 modifier = Modifier.weight(1f)
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            HeroItemLvl(
-                level = heroProfile.lvl,
             )
         }
     }
@@ -211,18 +205,6 @@ fun HeroItemDescription(raceOfHero: String,classOfHero: String,name: String,modi
     }
 }
 
-@Composable
-fun HeroItemLvl(level: Int,modifier: Modifier = Modifier) {
-    Row {
-        Text(
-            text = stringResource(R.string.level)
-        )
-        Text(
-            text = stringResource(R.string.level_value, level)
-        )
-    }
-}
-
 
 @Preview
 @Composable
@@ -231,10 +213,19 @@ fun ListOfHeroesPreview(){
         heroProfile = HeroProfile(
             imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
             name = "slfhnksjdfnksd",
-            descriptionCharacterRace = HeroRaceDesc.DarkinBorn().name,
-            descriptionCharacterClass = HeroClassDesc.Paladin().name,
-            lvl = 1,
-            lvlDescription = R.string.level
+            characterRace = HeroRaceDesc.DarkinBorn(),
+            characterClass = HeroClassDesc.Paladin(),
+            lvlDescription = R.string.level,
+            hp = 0,
+            maxHp = 0,
+            attributes = mapOf(),
+            languages = listOf(),
+            skills = "" to "",
+            raceStats = mapOf(),
+            totalStatsValue = mapOf(),
+            characterSubRace = null,
+            spell = null,
+            region = Region.Ionia,
         )
     )
 }

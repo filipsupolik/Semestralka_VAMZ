@@ -19,13 +19,22 @@ sealed class Lists{
     ):Lists()
 }
 
-data class HeroProfile(
+ data class HeroProfile(
     @DrawableRes val imageResourceId: Int,
     @StringRes val lvlDescription: Int,
     val name: String,
-    val descriptionCharacterRace: String,
-    val descriptionCharacterClass: String,
-    val lvl: Int
+    val characterRace: HeroRaceDesc,
+    val characterClass: HeroClassDesc,
+    val characterSubRace: SubRace?,
+    val raceStats: Map<RaceAttributes, Int>,
+    val totalStatsValue: Map<RaceAttributes, Int>,
+    val hp: Int,
+    val maxHp: Int,
+    val attributes: Map<RaceAttributes, Int>,
+    val languages: List<String>,
+    val skills: Pair<String, String>,
+    val spell: Spell? = null,
+    val region: Region
 )
 
 val regions = listOf(

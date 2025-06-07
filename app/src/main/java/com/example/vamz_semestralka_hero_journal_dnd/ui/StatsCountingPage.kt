@@ -42,13 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
+import com.example.vamz_semestralka_hero_journal_dnd.data.StatMethod
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
-enum class StatMethod(val label: String) {
-    ROLL("Roll"),
-    STANDARD_ARRAY("Standard Array"),
-    POINT_BUY("Point Buy")
-}
 
 @Composable
 fun AbilityScreen(
@@ -58,7 +54,6 @@ fun AbilityScreen(
     onBack: () -> Unit
 ) {
     val statsPageState by completeCharacterCreationViewModel.uiState.collectAsState()
-    var selectedMethod by remember { mutableStateOf(StatMethod.ROLL) }
 
     Scaffold(
         topBar = {
@@ -77,9 +72,9 @@ fun AbilityScreen(
             StatMethod.entries.forEach { method ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(
-                        selected = selectedMethod == method,
+                        selected = statsPageState.selectedMethodStatsCounting == method,
                         onClick = {
-                            selectedMethod = method
+                            completeCharacterCreationViewModel.setSelectedMethod(method)
                             when (method) {
                                 StatMethod.ROLL -> completeCharacterCreationViewModel.setBaseValues(3)
                                 StatMethod.STANDARD_ARRAY -> completeCharacterCreationViewModel.setBaseValues(-1)
@@ -92,7 +87,7 @@ fun AbilityScreen(
                 }
             }
 
-            if (selectedMethod == StatMethod.POINT_BUY) {
+            if (statsPageState.selectedMethodStatsCounting == StatMethod.POINT_BUY) {
                 Text(stringResource(R.string.remaining_points, statsPageState.remainingPoints), style = MaterialTheme.typography.bodyMedium)
             }
 
@@ -103,9 +98,9 @@ fun AbilityScreen(
                     label = attribute.name,
                     base = base,
                     raceBonus = statsPageState.raceStats[attribute] ?: 0,
-                    method = selectedMethod,
+                    method = statsPageState.selectedMethodStatsCounting,
                     onBaseChange = { newValue ->
-                        if (selectedMethod == StatMethod.POINT_BUY) {
+                        if (statsPageState.selectedMethodStatsCounting == StatMethod.POINT_BUY) {
                             val cost = newValue - (statsPageState.baseValue[attribute] ?: 0)
                             if (statsPageState.remainingPoints - cost >= 0 && newValue in 8..15) {
                                 completeCharacterCreationViewModel.updateBaseValue(attribute, newValue)
@@ -116,7 +111,8 @@ fun AbilityScreen(
                         }
 
                         completeCharacterCreationViewModel.setTotalStat(attribute, newValue + (statsPageState.raceStats[attribute] ?: 0))
-                    }
+                    },
+                    viewModel = completeCharacterCreationViewModel
                 )
             }
 
@@ -134,8 +130,6 @@ fun AbilityScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 Button(onClick = {
                     completeCharacterCreationViewModel.addCreatedCharacterToList()
-                    completeCharacterCreationViewModel.resetAbilities()
-                    completeCharacterCreationViewModel.resetRegion()
                     completeCharacterCreationViewModel.reset()
                     onNextPage()
                 }) {
@@ -148,6 +142,7 @@ fun AbilityScreen(
 
 @Composable
 fun AbilityRow(
+    viewModel: CharacterCreationViewModel,
     label: String,
     base: Int,
     raceBonus: Int,
@@ -164,7 +159,8 @@ fun AbilityRow(
                 DropdownMenuBox(
                     selected = if (base == -1) "--" else base.toString(),
                     options = options.map { it.toString() },
-                    onOptionSelected = { onBaseChange(it.toInt()) }
+                    onOptionSelected = { onBaseChange(it.toInt()) },
+                    setValue = { viewModel.setBaseValues(it.toInt()) }
                 )
             } else {
                 val min = if (method == StatMethod.ROLL) 3 else 8
@@ -185,13 +181,13 @@ fun AbilityRow(
 }
 
 @Composable
-fun DropdownMenuBox(selected: String, options: List<String>, onOptionSelected: (String) -> Unit) {
+fun DropdownMenuBox(selected: String, options: List<String>, onOptionSelected: (String) -> Unit, setValue:(String) ->Unit) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         OutlinedTextField(
             value = selected,
-            onValueChange = {},
-            modifier = Modifier.width(80.dp),
+            onValueChange = setValue,
+            modifier = Modifier.width(180.dp),
             readOnly = true,
             label = { Text(stringResource(R.string.base)) },
             trailingIcon = {

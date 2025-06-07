@@ -31,7 +31,7 @@
     <string name="saving_throws">Saving Throws</string>
     <string name="abilities">Abilities</string>
     <string name="xp">%1$s / %2$s XP</string>
-    <string name="lvl">Lvl. %1$s %2$s, %3$s</string>
+    <string name="sideBar_character_desc">%1$s, %2$s</string>
     <string name="stats">Stats</string>
     <string name="home_icon">Home icon</string>
     <string name="menu">Menu</string>

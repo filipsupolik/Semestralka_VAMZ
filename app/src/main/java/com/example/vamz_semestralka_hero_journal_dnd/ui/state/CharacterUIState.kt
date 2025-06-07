@@ -7,9 +7,9 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
 import com.example.vamz_semestralka_hero_journal_dnd.data.RaceAttributes
 import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
+import com.example.vamz_semestralka_hero_journal_dnd.data.StatMethod
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import com.example.vamz_semestralka_hero_journal_dnd.data.regions
-import com.example.vamz_semestralka_hero_journal_dnd.ui.StatMethod
 
 data class CharacterUIState(
     val playerName: String = "",
@@ -59,8 +59,6 @@ data class CharacterUIState(
         RaceAttributes.INT to 0,
         RaceAttributes.DEX to 0,
     ),
-    val totalHP: Int = 20,
-    val playerLevel: Int = 1,
-    val XpToAdd: Int  = 0,
-    val currentHP: Int = 20,
+
+    val openDrawer: Boolean = false,
 )
