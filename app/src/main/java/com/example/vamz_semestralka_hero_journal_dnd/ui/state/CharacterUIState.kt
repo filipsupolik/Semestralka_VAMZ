@@ -11,6 +11,11 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.StatMethod
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import com.example.vamz_semestralka_hero_journal_dnd.data.regions
 
+/**
+ * Trieda ktora uchovava stav celej aplikacie
+ * Drzi informaccie o postave ktoru vytvaram ako aj o otvoreni/zatvoreni dropdown menu
+ */
+
 data class CharacterUIState(
     val playerName: String = "",
     val characterRace: HeroRaceDesc = HeroRaceDesc.Human(),
@@ -60,5 +65,6 @@ data class CharacterUIState(
         RaceAttributes.DEX to 0,
     ),
 
-    val openDrawer: Boolean = false,
+    val descriptionDialogSpell: Spell? = null,
+    val expanded: Boolean = false
 )

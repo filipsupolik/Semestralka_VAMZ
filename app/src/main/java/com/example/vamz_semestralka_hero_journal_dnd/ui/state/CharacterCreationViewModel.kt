@@ -22,9 +22,11 @@ class CharacterCreationViewModel: ViewModel() {
     val uiState: StateFlow<CharacterUIState> = _uiState.asStateFlow()
 
     private var totalRaceStats: MutableMap<RaceAttributes, Int> = mutableMapOf()
-    fun calculateBAseAttribute(race: HeroRaceDesc, subRace: SubRace?)
-    {
 
+    /**
+     * Vypočíta základné atribúty na základe rasy a subrasy a uloží ich do stavu.
+     */
+    fun calculateBAseAttribute(race: HeroRaceDesc, subRace: SubRace?) {
         for ((attr, value) in race.baseStats) {
             totalRaceStats[attr] = totalRaceStats[attr]?.plus(value) ?: value
         }
@@ -35,107 +37,107 @@ class CharacterCreationViewModel: ViewModel() {
             }
         }
 
-        _uiState.value = _uiState.value.copy(
-            raceStats = totalRaceStats
-        )
+        _uiState.value = _uiState.value.copy(raceStats = totalRaceStats)
     }
 
-    fun setName(name: String)
-    {
-        _uiState.update { currentPlayer ->
-            currentPlayer.copy(playerName = name)
+    /**
+     * Nastaví meno hráča.
+     */
+    fun setName(name: String) {
+        _uiState.update { it.copy(playerName = name) }
+    }
+
+    /**
+     * Nastaví rasu postavy podľa jej názvu.
+     */
+    fun setHeroRace(raceName: String) {
+        _uiState.update {
+            it.copy(characterRace = HeroClassDesc.HeroRace.chooseRaceFromName(raceName) ?: HeroRaceDesc.Human())
         }
     }
 
-    fun setHeroRace(raceName: String)
-    {
-        _uiState.update { currentPlayer ->
-            currentPlayer.copy(characterRace = HeroClassDesc.HeroRace.chooseRaceFromName(raceName) ?: HeroRaceDesc.Human())
+    /**
+     * Nastaví triedu postavy podľa jej názvu.
+     */
+    fun setHeroClass(className: String) {
+        _uiState.update {
+            it.copy(characterClass = HeroClassDesc.HeroClass.chooseRaceFromName(className) ?: HeroClassDesc.Rogue())
         }
     }
 
-    fun setHeroClass(className: String)
-    {
-        _uiState.update { currentPlayer ->
-            currentPlayer.copy(characterClass = HeroClassDesc.HeroClass.chooseRaceFromName(className) ?: HeroClassDesc.Rogue())
+    /**
+     * Pridá jazyk do zoznamu jazykov hráča (okrem pevných jazykov rasy).
+     */
+    fun setPlayerLanguage(language: String) {
+        _uiState.update {
+            it.copy(playerLanguages = it.playerLanguages + it.characterRace.fixedLanguages + language)
         }
     }
 
-    fun setPlayerLanguage(language: String)
-    {
-        _uiState.update { currentPlayer ->
-            currentPlayer.copy(
-                playerLanguages = currentPlayer.playerLanguages.plus(
-                    currentPlayer.characterRace.fixedLanguages
-                ).plus(language)
-            )
-        }
-    }
-
+    /**
+     * Nastaví začiatočné kúzlo hráča.
+     */
     fun setStartingSpell(spell: String) {
-        _uiState.update { currentState ->
-            val findSpell = currentState.characterClass.spells.find { it.name == spell }
-            currentState.copy(
-                playerSpell = findSpell
-            )
+        _uiState.update {
+            val findSpell = it.characterClass.spells.find { s -> s.name == spell }
+            it.copy(playerSpell = findSpell)
         }
     }
 
-    fun setPlayerSubRace(subRace: SubRace?){
-        _uiState.update { currentState ->
-            currentState.copy(
-                characterSubRace = subRace
-            )
-        }
+    /**
+     * Nastaví subrasu postavy.
+     */
+    fun setPlayerSubRace(subRace: SubRace?) {
+        _uiState.update { it.copy(characterSubRace = subRace) }
     }
 
+    /**
+     * Nastaví región pôvodu hráča.
+     */
     fun setRegion(name: String) {
-        _uiState.update {currentState->
-            currentState.copy(
-                playerRegion = Region.chooseRegionFromName(name)
-            )
-        }
+        _uiState.update { it.copy(playerRegion = Region.chooseRegionFromName(name)) }
     }
 
+    /**
+     * Resetuje región hráča na predvolený (Ionia).
+     */
     fun resetRegion() {
-        _uiState.update { currentUiState->
-            currentUiState.copy(
-                playerRegion = Region.Ionia
-            )
-        }
+        _uiState.update { it.copy(playerRegion = Region.Ionia) }
     }
 
+    /**
+     * Nastaví schopnosti hráča – maximálne dve.
+     */
     fun setPlayerSkill(label: String) {
-        _uiState.update { currentState ->
-            val (first, second) = currentState.playerSkill
-
+        _uiState.update {
+            val (first, second) = it.playerSkill
             val updatedSkill = when {
-                first.isEmpty() -> Pair(label, second)
-                second.isEmpty() && label != first -> Pair(first, label)
-                else -> Pair(first, second)
+                first.isEmpty() -> label to second
+                second.isEmpty() && label != first -> first to label
+                else -> first to second
             }
-
-            currentState.copy(playerSkill = updatedSkill)
+            it.copy(playerSkill = updatedSkill)
         }
     }
 
+    /**
+     * Nastaví kúzlo hráča.
+     */
     fun setPlayerSpell(spell: Spell) {
-        _uiState.update { currentUiState->
-            currentUiState.copy(
-                playerSpell = spell
-            )
-        }
+        _uiState.update { it.copy(playerSpell = spell) }
     }
 
+    /**
+     * Aktualizuje zostávajúce body pre systém bodového nákupu.
+     */
     fun setRemainingStatsPoints(cost: Int) {
-        _uiState.update { currentState->
-            currentState.copy(
-                remainingPoints = currentState.remainingPoints - cost
-            )
-        }
+        _uiState.update { it.copy(remainingPoints = it.remainingPoints - cost) }
     }
 
-    fun addCreatedCharacterToList(){
+    /**
+     * Pridá aktuálne vytvorenú postavu do zoznamu postáv.
+     */
+    fun addCreatedCharacterToList() {
         val newCharacter = HeroProfile(
             imageResourceId = R.drawable._03017_avatar_default_head_person_unknown_icon,
             lvlDescription = R.string.level,
@@ -154,190 +156,189 @@ class CharacterCreationViewModel: ViewModel() {
             region = _uiState.value.playerRegion
         )
 
-
-        _uiState.update {currentState ->
-            currentState.copy(
-                allCharacters = currentState.allCharacters.plus(newCharacter)
-            )
+        _uiState.update {
+            it.copy(allCharacters = it.allCharacters + newCharacter)
         }
 
         Log.d("CreateChar", "All characters: ${_uiState.value.allCharacters}")
     }
 
+    /**
+     * Nastaví vybraný jazyk v rozhraní.
+     */
     fun setSelectedLanguage(language: String) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                selectedLanguage = language
-            )
-        }
+        _uiState.update { it.copy(selectedLanguage = language) }
     }
 
+    /**
+     * Nastaví vybranú subrasu v rozhraní.
+     */
     fun setSelectedSubrace(subrace: SubRace?) {
-        _uiState.update {currentState ->
-            currentState.copy(
-                selectedSubRace = subrace
-            )
+        _uiState.update { it.copy(selectedSubRace = subrace) }
+    }
+
+    /**
+     * Nastaví základné hodnoty atribútov na rovnakú hodnotu.
+     */
+    fun setBaseValues(value: Int) {
+        _uiState.update {
+            it.copy(baseValue = it.baseValue.mapValues { value })
         }
     }
 
-    fun setBaseValues(value: Int){
-        _uiState.update {currentState ->
-            currentState.copy(
-                baseValue = currentState.baseValue.mapValues { value }
-            )
-        }
-    }
-
+    /**
+     * Nastaví konečnú hodnotu konkrétneho atribútu (základ + bonus).
+     */
     fun setTotalStat(attribute: RaceAttributes, value: Int) {
-        _uiState.update { current ->
-            current.copy(
-                totalStatsValue = current.totalStatsValue.toMutableMap().apply {
-                    this[attribute] = value
-                }
-            )
+        _uiState.update {
+            it.copy(totalStatsValue = it.totalStatsValue.toMutableMap().apply { this[attribute] = value })
         }
     }
 
+    /**
+     * Aktualizuje základnú hodnotu konkrétneho atribútu.
+     */
     fun updateBaseValue(attribute: RaceAttributes, value: Int) {
-        _uiState.update { current ->
-            current.copy(
-                baseValue = current.baseValue.toMutableMap().apply {
-                    this[attribute] = value
-                }
-            )
+        _uiState.update {
+            it.copy(baseValue = it.baseValue.toMutableMap().apply { this[attribute] = value })
         }
     }
 
+    /**
+     * Resetuje atribúty na nulové hodnoty a vráti dostupné body na 27.
+     */
     fun resetAbilities() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                baseValue = currentState.baseValue.mapValues { 0 },
-                totalStatsValue = currentState.totalStatsValue.mapValues { 0 }.toMutableMap(),
+        _uiState.update {
+            it.copy(
+                baseValue = it.baseValue.mapValues { 0 },
+                totalStatsValue = it.totalStatsValue.mapValues { 0 }.toMutableMap(),
                 remainingPoints = 27
             )
         }
     }
 
+    /**
+     * Zvýši HP vybranej postavy (ak ešte nedosiahla maximum).
+     */
     fun increaseHp() {
         val currentHero = getChosenHeroProfile(_uiState.value.selectedPlayerName)
-        currentHero?.copy(
-            hp = if (currentHero.hp >= currentHero.maxHp) currentHero.maxHp else currentHero.hp + 1
-        )
-
-        updateHero(currentHero!!)
+        currentHero?.copy(hp = if (currentHero.hp >= currentHero.maxHp) currentHero.maxHp else currentHero.hp + 1)
+            ?.let { updateHero(it) }
     }
 
+    /**
+     * Zníži HP vybranej postavy (ak má viac ako 0).
+     */
     fun decreaseHp() {
         val currentHero = getChosenHeroProfile(_uiState.value.selectedPlayerName)
-        currentHero?.copy(
-            hp = if (currentHero.hp <= 0) currentHero.maxHp else currentHero.hp - 1
-        )
-
-        updateHero(currentHero!!)
+        currentHero?.copy(hp = if (currentHero.hp <= 0) 0 else currentHero.hp - 1)
+            ?.let { updateHero(it) }
     }
 
+    /**
+     * Vymaže postavu zo zoznamu podľa jej mena.
+     */
     fun deleteCharacterFromList(name: String) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                allCharacters = currentState.allCharacters.filterNot { it.name == name },
+        _uiState.update {
+            it.copy(
+                allCharacters = it.allCharacters.filterNot { it.name == name },
                 selectedPlayerName = ""
             )
         }
     }
 
-    fun setSelectedPlayerName(name: String){
-        _uiState.update {
-            it.copy(
-                selectedPlayerName = name
-            )
-        }
+    /**
+     * Nastaví meno vybranej postavy.
+     */
+    fun setSelectedPlayerName(name: String) {
+        _uiState.update { it.copy(selectedPlayerName = name) }
     }
 
+    /**
+     * Resetuje všetky hodnoty v stave späť na predvolené.
+     */
     fun reset() {
         _uiState.update {
             it.copy(
-                playerName= "",
+                playerName = "",
                 characterRace = HeroRaceDesc.Human(),
                 characterClass = HeroClassDesc.Paladin(),
                 characterSubRace = null,
-                playerRegion= Region.Ionia,
-                playerLanguages= emptyList(),
-                playerXP= 0,
-                playerXPToNextLvl= 100,
-
+                playerRegion = Region.Ionia,
+                playerLanguages = emptyList(),
+                playerXP = 0,
+                playerXPToNextLvl = 100,
                 playerSkill = "" to "",
-                listOfRegions= regions,
-
+                listOfRegions = regions,
                 playerSpell = null,
-
-                selectedPlayerName= "",
-                selectedLanguage= "",
+                selectedPlayerName = "",
+                selectedLanguage = "",
                 selectedSubRace = null,
-                selectedMethodStatsCounting= StatMethod.ROLL,
-
-                remainingPoints= 27,
-
-                baseValue= mutableMapOf(
+                selectedMethodStatsCounting = StatMethod.ROLL,
+                remainingPoints = 27,
+                baseValue = mutableMapOf(
                     RaceAttributes.STR to 0,
                     RaceAttributes.CHA to 0,
                     RaceAttributes.WIS to 0,
                     RaceAttributes.CON to 0,
                     RaceAttributes.INT to 0,
                     RaceAttributes.DEX to 0,
-            ),
-
-            raceStats = mutableMapOf(
-                RaceAttributes.STR to 0,
-                RaceAttributes.CHA to 0,
-                RaceAttributes.WIS to 0,
-                RaceAttributes.CON to 0,
-                RaceAttributes.INT to 0,
-                RaceAttributes.DEX to 0,
-            ),
-            totalStatsValue = mutableMapOf(
-                RaceAttributes.STR to 0,
-                RaceAttributes.CHA to 0,
-                RaceAttributes.WIS to 0,
-                RaceAttributes.CON to 0,
-                RaceAttributes.INT to 0,
-                RaceAttributes.DEX to 0,
-            ),
+                ),
+                raceStats = mutableMapOf(
+                    RaceAttributes.STR to 0,
+                    RaceAttributes.CHA to 0,
+                    RaceAttributes.WIS to 0,
+                    RaceAttributes.CON to 0,
+                    RaceAttributes.INT to 0,
+                    RaceAttributes.DEX to 0,
+                ),
+                totalStatsValue = mutableMapOf(
+                    RaceAttributes.STR to 0,
+                    RaceAttributes.CHA to 0,
+                    RaceAttributes.WIS to 0,
+                    RaceAttributes.CON to 0,
+                    RaceAttributes.INT to 0,
+                    RaceAttributes.DEX to 0,
+                ),
             )
         }
     }
 
-    fun setOpenDrawer(init: Boolean) {
-        _uiState.update {
-            it.copy(
-                openDrawer = init
-            )
-        }
-    }
-
-    fun getChosenHeroProfile(name: String): HeroProfile?{
+    /**
+     * Získa profil postavy podľa mena.
+     */
+    fun getChosenHeroProfile(name: String): HeroProfile? {
         return _uiState.value.allCharacters.find { it.name == name }
     }
 
-    /*
-    * Metoda s ktorou mi pomahal ChatGPT opravit problem,
-    * metoda je pozmenena mnou aby robila to co som potreboval spravne
-    */
+    /**
+     * Aktualizuje údaje konkrétnej postavy v zozname.
+     */
     fun updateHero(heroToUpdate: HeroProfile) {
-        val updatedList = _uiState.value.allCharacters.map { hero ->
-            if (hero.name == heroToUpdate.name) heroToUpdate else hero
+        val updatedList = _uiState.value.allCharacters.map {
+            if (it.name == heroToUpdate.name) heroToUpdate else it
         }
-        _uiState.update {
-            it.copy(
-                allCharacters = updatedList
-            )
-        }
+        _uiState.update { it.copy(allCharacters = updatedList) }
     }
 
+    /**
+     * Nastaví metódu počítania štatistík (napr. ROLL, POINT_BUY, STANDARD_ARRAY).
+     */
     fun setSelectedMethod(method: StatMethod) {
-        _uiState.update {
-            it.copy(
-                selectedMethodStatsCounting = method
-            )
-        }
+        _uiState.update { it.copy(selectedMethodStatsCounting = method) }
+    }
+
+    /**
+     * Nastaví kúzlo pre zobrazenie v dialógu s popisom.
+     */
+    fun setDescriptionSpell(spell: Spell?) {
+        _uiState.update { it.copy(descriptionDialogSpell = spell) }
+    }
+
+    /**
+     * Nastaví stav rozbalovacieho menu (rozbalené/zbalené).
+     */
+    fun setStateForDropDownMenu(state: Boolean) {
+        _uiState.update { it.copy(expanded = state) }
     }
 }

@@ -78,4 +78,5 @@
     <string name="base">Base</string>
     <string name="dropdown">Dropdown</string>
     <string name="delete_button_label">delete button\n</string>
+    <string name="delete_icon">Delete icon</string>
 </resources>

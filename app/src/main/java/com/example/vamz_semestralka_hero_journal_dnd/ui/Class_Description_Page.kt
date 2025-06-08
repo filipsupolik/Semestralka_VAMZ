@@ -32,12 +32,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,55 +49,33 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.HeroClassDesc
-import com.example.vamz_semestralka_hero_journal_dnd.data.Spell
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
+
+/**
+ * Hlavna obrazovka spolu so vsetkymi komponentami
+ * Su tu vsetky informacie o zvolenej triede
+ * Pri vytvarani obrazovky som si pomahal ChatGPT,
+ * ktory mi dal zakladnu kostru stranky, ktoru som si ja dotvoril podla vlastneho dizajnu
+ */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeroClassDetailScreen(
     heroClass: HeroClassDesc,
-    imageRes: Int?,
     characterCreationViewModel: CharacterCreationViewModel,
     onNextPage: () -> Unit,
     onBack: () -> Unit
 ) {
     val characterUIState by characterCreationViewModel.uiState.collectAsState()
-    var descriptionDialogSpell by remember { mutableStateOf<Spell?>(null) }
     val classDescriptionScrollState = rememberScrollState()
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row {
-                        Text(heroClass.name, style = MaterialTheme.typography.titleLarge)
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = stringResource(R.string.arrow_forward_to_next_page),
-                            modifier = Modifier.clickable {
-                                onNextPage()
-                            }
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-                navigationIcon = {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.backArrow),
-                        modifier = Modifier.clickable {
-                            onBack()
-                        }
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+            ClassDescriptionTopAppBar(
+                heroClass = heroClass,
+                onBack = onBack,
+                onNextPage = onNextPage,
+                scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
             )
         }
     ) { innerPadding ->
@@ -146,7 +122,11 @@ fun HeroClassDetailScreen(
                     options = heroClass.skills,
                     onOptionSelected = { skill->
                         characterCreationViewModel.setPlayerSkill(skill)
-                    }
+                    },
+                    openDropDown = {
+                        characterCreationViewModel.setStateForDropDownMenu(true)
+                    },
+                    viewModel = characterCreationViewModel
                 )
                 DropdownSelector(
                     label = stringResource(R.string.choose_a_skill),
@@ -154,7 +134,11 @@ fun HeroClassDetailScreen(
                     selectedOption = characterUIState.playerSkill.second,
                     onOptionSelected = {skill->
                         characterCreationViewModel.setPlayerSkill(skill)
-                    }
+                    },
+                    openDropDown = {
+                        characterCreationViewModel.setStateForDropDownMenu(true)
+                    },
+                    viewModel = characterCreationViewModel
                 )
             }
 
@@ -181,7 +165,7 @@ fun HeroClassDetailScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(text = spell.name, modifier = Modifier.weight(1f))
-                        IconButton(onClick = { descriptionDialogSpell = spell }) {
+                        IconButton(onClick = { characterCreationViewModel.setDescriptionSpell(spell) }) {
                             Icon(Icons.Default.Info, contentDescription = stringResource(R.string.spell_info))
                         }
                     }
@@ -216,8 +200,8 @@ fun HeroClassDetailScreen(
         }
     }
 
-    descriptionDialogSpell?.let { spell ->
-        Dialog(onDismissRequest = { descriptionDialogSpell = null }) {
+    characterUIState.descriptionDialogSpell?.let { spell ->
+        Dialog(onDismissRequest = { characterCreationViewModel.setDescriptionSpell(null) }) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -235,7 +219,7 @@ fun HeroClassDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(spell.description, style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = { descriptionDialogSpell = null }, modifier = Modifier.align(Alignment.End)) {
+                    Button(onClick = { characterCreationViewModel.setDescriptionSpell(null) }, modifier = Modifier.align(Alignment.End)) {
                         Text(stringResource(R.string.close_label_button))
                     }
                 }
@@ -244,14 +228,62 @@ fun HeroClassDetailScreen(
     }
 }
 
+/**
+ * Top app bar pre triedu postavy
+ * @param heroClass zvolena trieda
+ * @param onBack metoda pre vratenie sa spat o 1 obrazovku na vyber triedy
+ */
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ClassDescriptionTopAppBar(heroClass: HeroClassDesc, onBack: () -> Unit, onNextPage: () -> Unit, scrollBehavior: TopAppBarScrollBehavior) {
+    CenterAlignedTopAppBar(
+        title = {
+            Row {
+                Text(heroClass.name, style = MaterialTheme.typography.titleLarge)
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = stringResource(R.string.arrow_forward_to_next_page),
+                    modifier = Modifier.clickable {
+                        onNextPage()
+                    }
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior,
+        navigationIcon = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.backArrow),
+                modifier = Modifier.clickable {
+                    onBack()
+                }
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    )
+}
+
+/**
+ * Dropdown selector pre vyber volbu z viacerych moznosti
+ * Metodu ktoru som prebral od chatgpt s minimalnou upravou
+ */
+
 @Composable
 fun DropdownSelector(
     label: String,
     options: List<String>,
     selectedOption: String?,
-    onOptionSelected: (String) -> Unit
+    onOptionSelected: (String) -> Unit,
+    openDropDown: () -> Unit,
+    viewModel: CharacterCreationViewModel
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    val state by viewModel.uiState.collectAsState()
 
     Column(modifier = Modifier
         .fillMaxWidth()
@@ -267,17 +299,19 @@ fun DropdownSelector(
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = stringResource(R.string.show_options_arrow),
-                        Modifier.clickable { expanded = true }
+                        Modifier.clickable {
+                            openDropDown()
+                        }
                     )
                 }
             )
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenu(expanded = state.expanded, onDismissRequest = { viewModel.setStateForDropDownMenu(false) }) {
                 options.forEach {
                     DropdownMenuItem(
                         text = { Text(it) },
                         onClick = {
                             onOptionSelected(it)
-                            expanded = false
+                            viewModel.setStateForDropDownMenu(false)
                         }
                     )
                 }
@@ -293,9 +327,8 @@ fun PreviewDescriptionPage() {
     HeroClassDetailScreen(
         heroClass = previewClass,
         characterCreationViewModel = viewModel(),
-        onBack = {},
         onNextPage = {},
-        imageRes = R.drawable.dnd_paladin_5e_dwarf
+        onBack = {}
     )
 }
 

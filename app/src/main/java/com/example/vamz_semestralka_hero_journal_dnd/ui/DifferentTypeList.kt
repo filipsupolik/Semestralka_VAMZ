@@ -33,9 +33,16 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.Lists
 import com.example.vamz_semestralka_hero_journal_dnd.data.classes
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
+/**
+ * Hlavna obrazovka spolu so vsetkymi komponentami
+ * Obrazovka, do ktorej sa posle parameter list, ktory sa ma zobrazit v LazyColumn
+ * S logikou vyberania postavy som si pomohol ChatGPT
+ */
+
 @Composable
 fun HeroListPage(
-    whatToSelect: String, listOfDifferentTypes: List<Lists>,
+    whatToSelect: String,
+    listOfDifferentTypes: List<Lists>,
     characterCreationViewModel: CharacterCreationViewModel,
     modifier: Modifier = Modifier,
     onNextPage: (String) -> Unit,
@@ -85,6 +92,10 @@ fun HeroListPage(
     }
 }
 
+/**
+ * Vrchna lista na obrazovke listu
+ */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeroListTopAppBar(whatToSelect: String,modifier: Modifier = Modifier, onBack: () -> Unit){
@@ -108,6 +119,12 @@ fun HeroListTopAppBar(whatToSelect: String,modifier: Modifier = Modifier, onBack
         )
     )
 }
+
+/**
+ * Composable, ktoru zobrazujem v LazyColumne
+ * Item pre kazdy typ listu
+ * Tato composable konkretne je pre list regionov
+ */
 
 @Composable
 fun RegionItem(region: Lists.Region, modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -139,6 +156,13 @@ fun RegionItem(region: Lists.Region, modifier: Modifier = Modifier, onClick: () 
     }
 }
 
+
+/**
+ * Composable, ktoru zobrazujem v LazyColumne
+ * Item pre kazdy typ listu
+ * Tato composable konkretne je pre list tried postavy
+ */
+
 @Composable
 fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(
@@ -168,6 +192,13 @@ fun HeroClassItem(heroClass: Lists.HeroClasses, modifier: Modifier = Modifier, o
         }
     }
 }
+
+
+/**
+ * Composable, ktoru zobrazujem v LazyColumne
+ * Item pre kazdy typ listu
+ * Tato composable konkretne je pre list ras
+ */
 
 @Composable
 fun HeroRaceItem(heroRace: Lists.HeroRace, onClick:() -> Unit,modifier: Modifier = Modifier) {

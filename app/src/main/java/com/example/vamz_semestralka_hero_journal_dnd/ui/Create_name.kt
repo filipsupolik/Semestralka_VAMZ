@@ -33,6 +33,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
+/**
+ * Hlavna obrazovka spolu so vsetkymi komponentami pre vytvaranie mena postavy
+ */
+
 @Composable
 fun CharacterNameChoice(
     characterCreationViewModel: CharacterCreationViewModel,
@@ -67,7 +71,8 @@ fun CharacterNameChoice(
                 horizontalArrangement = Arrangement.Start
             ) {
                 CreateNameAddButton(
-                    onNextPage = onRaceSelection
+                    onNextPage = onRaceSelection,
+                    setName = { characterCreationViewModel.setName(characterUIState.playerName) }
                 )
                 CreateNameCancelButton(
                     onBack = onHome
@@ -76,6 +81,11 @@ fun CharacterNameChoice(
         }
     }
 }
+
+/**
+ * tlacidlo pre zrusenie volby mena a vratenie sa spat na obrazovku s charaktermi
+ * @param onBack metoda pre vratenie sa spat o 1 obrazovku na obrazovku s charaktermi
+ */
 
 @Composable
 fun CreateNameCancelButton(modifier: Modifier = Modifier, onBack: () -> Unit) {
@@ -91,13 +101,20 @@ fun CreateNameCancelButton(modifier: Modifier = Modifier, onBack: () -> Unit) {
     }
 }
 
+/**
+ * tlacidlo pre potvrdenie mena postavy
+ * @param onNextPage metoda pre navigaciu na obrazovku so zoznamom regionov
+ */
+
 @Composable
 fun CreateNameAddButton(
     modifier: Modifier = Modifier,
-    onNextPage: () -> Unit
+    onNextPage: () -> Unit,
+    setName: () -> Unit
 ) {
     Button(
         onClick = {
+            setName()
             onNextPage()
         },
         modifier = modifier
@@ -107,6 +124,10 @@ fun CreateNameAddButton(
         )
     }
 }
+
+/**
+ * Text field pre zadanie mena postavy
+ */
 
 @Composable
 fun CreateNameTextField(
@@ -137,6 +158,10 @@ fun CreateNameTextField(
         ),
     )
 }
+
+/**
+ * Text ktory sa zobrazi pri vytvarani mena
+ */
 
 @Composable
 fun CreateNameTitle(modifier: Modifier = Modifier) {

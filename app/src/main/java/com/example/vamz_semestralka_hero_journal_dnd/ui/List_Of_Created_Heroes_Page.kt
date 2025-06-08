@@ -44,6 +44,10 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.Region
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.ui.theme.Shapes
 
+/**
+ * Horny bar pre obrazovku, ktora zobrazuje list vsetkych postav
+ */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListOfHeroesTopAppBar(modifier: Modifier = Modifier, onHome: () -> Unit, onCreateCharacter: () -> Unit){
@@ -85,6 +89,10 @@ fun ListOfHeroesTopAppBar(modifier: Modifier = Modifier, onHome: () -> Unit, onC
             .fillMaxWidth()
     )
 }
+
+/**
+ * Hlavna obrazovka na ktorej sa zobrazuje list vsetkych postav
+ */
 
 @Composable
 fun CharacterPage(
@@ -130,6 +138,10 @@ fun CharacterPage(
     }
 }
 
+/**
+ * Composable, ktoru zobrazujem v LazyColumne
+ */
+
 @Composable
 fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
     Card(
@@ -156,6 +168,10 @@ fun HeroItem(heroProfile: HeroProfile ,modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * Icona pre kazdu postavu
+ */
+
 @Composable
 fun HeroItemIcon(paintResource: Int,modifier: Modifier = Modifier) {
     Box(
@@ -170,6 +186,10 @@ fun HeroItemIcon(paintResource: Int,modifier: Modifier = Modifier) {
         )
     }
 }
+
+/**
+ * Popis pre kazdu postavum obsahuje meno, rasu a triedu
+ */
 
 @Composable
 fun HeroItemDescription(raceOfHero: String,classOfHero: String,name: String,modifier: Modifier = Modifier) {

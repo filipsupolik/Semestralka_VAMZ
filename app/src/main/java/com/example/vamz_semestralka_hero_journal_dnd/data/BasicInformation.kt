@@ -2,16 +2,32 @@ package com.example.vamz_semestralka_hero_journal_dnd.data
 
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
+/**
+ * Subor obsahuje templaty pre entity v databaze
+ * Su tu ulozene informacie o HeroClass, HeroRace, zakladne enumy pouzivane v aplikacii
+ */
+
+/**
+ * Enum pre nastavenie velkosti rasy
+ */
+
 enum class RaceSize{
     SMALL, MEDIUM, LARGE
 }
 
+/**
+ * Enum pre metody zvolenu hracom
+ */
 
 enum class StatMethod(val label: String) {
     ROLL("Roll"),
     STANDARD_ARRAY("Standard Array"),
     POINT_BUY("Point Buy")
 }
+
+/**
+ * Enum pre jednotlive atributy hraca pouzivane v apliakcii
+ */
 
 enum class RaceAttributes(attr: String){
     STR("STR"),
@@ -22,11 +38,20 @@ enum class RaceAttributes(attr: String){
     CHA("CHA")
 }
 
+/**
+ * Data class ktora obsahuje  informacie o podrase hraca
+ */
+
 data class SubRace(
     val name: String,
     val extraStats: Map<RaceAttributes, Int> = emptyMap(),
     val extraTraits: List<RaceTrait> = emptyList()
 )
+
+/**
+ * Sealed class ktora sluzi pre definiciu traits postavy
+ * Traits mozu byt Simple, alebo nastavovatelne
+ */
 
 sealed class RaceTrait(
     val name: String,
@@ -34,12 +59,20 @@ sealed class RaceTrait(
 ) {
     class SimpleTraits(name: String, desc: String): RaceTrait(name, desc) }
 
+/**
+ * Data class ktora obsahuje informacie o spelle hraca
+ */
+
 data class Spell(
     val name: String,
     val level: Int,
     val school: String,
     val description: String
 )
+
+/**
+ * Sealed class z ktorej su podedene jednotlive rasy dostupne v aplikacii
+ */
 
 sealed class HeroRaceDesc(
     val name: String,
@@ -382,6 +415,9 @@ sealed class HeroRaceDesc(
 
 }
 
+/**
+ * Sealed class ktora predstavuje rozne druhy triedy hraca
+ */
 sealed class HeroClassDesc(
     val name: String,
     val description: String,
@@ -675,6 +711,10 @@ sealed class HeroClassDesc(
         imageRes = R.drawable.wizard_dnd_5e_1
     )
 
+    /**
+     * Sealed class, obsahuje obejkty pre jednoduchsiu navigaciu a vyber v pripade vybru rasy
+     */
+
     sealed class HeroRace(val name: String, val desc: HeroRaceDesc)
     {
         object AscendBorn: HeroRace("Ascend Born", HeroRaceDesc.AscendBorn())
@@ -695,6 +735,11 @@ sealed class HeroClassDesc(
             }
         }
     }
+
+
+    /**
+     * Sealed class, obsahuje obejkty pre jednoduchsiu navigaciu a vyber v pripade vybru triedy
+     */
 
     sealed class HeroClass(val name: String, val desc: HeroClassDesc)
     {

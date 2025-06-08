@@ -2,6 +2,11 @@ package com.example.vamz_semestralka_hero_journal_dnd.data
 
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
+/**
+ * trieda ktora sluzi na uchovavanie informacii o regionoch
+ * priprava pre databazu, tato trieda bude sluzit ako entita regionu
+ */
+
 sealed class Region(val regionName: String, val regionDescription: String, val imageRes: Int)
 {
     object BandelCity:Region(

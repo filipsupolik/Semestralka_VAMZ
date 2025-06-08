@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
+/**
+ * Hlavná obrazovka pre výber regiónu postavy.
+ * Zobrazuje obrázok vybraného regiónu, jeho popis, horný a spodný panel s možnosťami navigácie späť a ďalej.
+ */
 
 @Composable
 fun RegionPage(viewModel: CharacterCreationViewModel, onNextPage: () -> Unit, onBack: () -> Unit)
@@ -105,6 +109,12 @@ fun RegionPage(viewModel: CharacterCreationViewModel, onNextPage: () -> Unit, on
         }
     }
 }
+
+/**
+ * Vrchný panel pre obrazovku regiónu s názvom regiónu a ikonami pre navigáciu späť/ďalej.
+ *
+ * Používa CenterAlignedTopAppBar z Material3.
+ */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
