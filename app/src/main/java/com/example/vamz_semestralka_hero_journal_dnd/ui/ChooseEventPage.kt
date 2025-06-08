@@ -36,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
+/**
+ * Horna lista hlavnej obrazovky s nazvom obrazovky
+ */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HeroJournalMainPageTopAppBar(modifier: Modifier = Modifier ) {
@@ -59,6 +63,13 @@ fun HeroJournalMainPageTopAppBar(modifier: Modifier = Modifier ) {
     )
 }
 
+
+/**
+ * Composable pre tlacidlo na vytvorenie novej postavy
+ * @param description (String), popis tlacidla
+ * @param id (Int), id obrazku ktory sa zobrazi na tlacidle
+ * @param onCharacterCreation (void), funkcia ktora sa vola pri stlaceni tlacidla a sluzi na navigaciu na zoznam charakterov
+ */
 @Composable
 fun MainPageButton(description: String, id: Int , onCharacterCreation: () -> Unit ,modifier: Modifier = Modifier) {
     Box(
@@ -97,6 +108,12 @@ fun MainPageButton(description: String, id: Int , onCharacterCreation: () -> Uni
         }
     }
 }
+
+
+/**
+ * Hlavna obrazovka aplikacie
+ * Obsahuje tlacidla pre character a zobrazenie informacii o svete
+ */
 
 @Composable
 fun MainPage(modifier: Modifier = Modifier, navigation: () -> Unit){

@@ -4,6 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.example.vamz_semestralka_hero_journal_dnd.R
 
+/**
+ * Trieda sluzi ako template s roznymi listami
+ */
+
 sealed class Lists{
     data class Region(
         @DrawableRes val imageResourceId: Int,

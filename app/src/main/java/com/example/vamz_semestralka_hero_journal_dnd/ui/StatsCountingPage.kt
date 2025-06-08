@@ -45,6 +45,12 @@ import com.example.vamz_semestralka_hero_journal_dnd.R
 import com.example.vamz_semestralka_hero_journal_dnd.data.StatMethod
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
+/**
+ * Obrazovka je vytvorena s pomocou ChatGPT, spytal som sa na kostru celej stranky
+ * ktoru som si upravoval podla vlastnej potreby
+ * Pridaval som vlastne parametre, upravovanie hodnot pomocou viewModelu...
+ */
+
 
 @Composable
 fun AbilityScreen(
@@ -69,23 +75,8 @@ fun AbilityScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(stringResource(R.string.select_a_method), style = MaterialTheme.typography.titleMedium)
-            StatMethod.entries.forEach { method ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    RadioButton(
-                        selected = statsPageState.selectedMethodStatsCounting == method,
-                        onClick = {
-                            completeCharacterCreationViewModel.setSelectedMethod(method)
-                            when (method) {
-                                StatMethod.ROLL -> completeCharacterCreationViewModel.setBaseValues(3)
-                                StatMethod.STANDARD_ARRAY -> completeCharacterCreationViewModel.setBaseValues(-1)
-                                StatMethod.POINT_BUY -> completeCharacterCreationViewModel.setBaseValues(8)
-                            }
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = method.label, style = MaterialTheme.typography.titleMedium)
-                }
-            }
+
+            MethodSelector(viewModel = completeCharacterCreationViewModel)
 
             if (statsPageState.selectedMethodStatsCounting == StatMethod.POINT_BUY) {
                 Text(stringResource(R.string.remaining_points, statsPageState.remainingPoints), style = MaterialTheme.typography.bodyMedium)
@@ -116,29 +107,81 @@ fun AbilityScreen(
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = dimensionResource(R.dimen.padding_medium))
-            ) {
-                Button(onClick = {
-                    completeCharacterCreationViewModel.resetAbilities()
-                    onBack()
-                }) {
-                    Text(text = stringResource(R.string.back_label_button))
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = {
-                    completeCharacterCreationViewModel.addCreatedCharacterToList()
-                    completeCharacterCreationViewModel.reset()
-                    onNextPage()
-                }) {
-                    Text(text = stringResource(R.string.next_label_button))
-                }
-            }
+            BottomButtons(
+                completeCharacterCreationViewModel = completeCharacterCreationViewModel,
+                onNextPage = onNextPage,
+                onBack = onBack
+            )
+
         }
     }
 }
+
+/**
+ * Tlacidla na presun na dalsiu/predoslu obrazovku, zaroven aj ukladaju stav schopnosti pri presune
+ */
+
+@Composable
+fun BottomButtons(
+    completeCharacterCreationViewModel: CharacterCreationViewModel,
+    onNextPage: () -> Unit,
+    onBack: () -> Unit
+)
+{
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(R.dimen.padding_medium))
+    ) {
+        Button(onClick = {
+            completeCharacterCreationViewModel.resetAbilities()
+            onBack()
+        }) {
+            Text(text = stringResource(R.string.back_label_button))
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Button(onClick = {
+            completeCharacterCreationViewModel.addCreatedCharacterToList()
+            completeCharacterCreationViewModel.reset()
+            onNextPage()
+        }) {
+            Text(text = stringResource(R.string.next_label_button))
+        }
+    }
+}
+
+/**
+ * Sluzi na zvolenie konkretnej metody pre pocitanie hodnot
+ */
+
+@Composable
+fun MethodSelector(
+    viewModel: CharacterCreationViewModel
+) {
+    val statsPageState by viewModel.uiState.collectAsState()
+
+    StatMethod.entries.forEach { method ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(
+                selected = statsPageState.selectedMethodStatsCounting == method,
+                onClick = {
+                    viewModel.setSelectedMethod(method)
+                    when (method) {
+                        StatMethod.ROLL -> viewModel.setBaseValues(3)
+                        StatMethod.STANDARD_ARRAY -> viewModel.setBaseValues(-1)
+                        StatMethod.POINT_BUY -> viewModel.setBaseValues(8)
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = method.label, style = MaterialTheme.typography.titleMedium)
+        }
+    }
+}
+
+/**
+ * Zobrazuje a nastavuje hodnoty pre 1 konkretnu schopnost
+ */
 
 @Composable
 fun AbilityRow(
@@ -180,6 +223,11 @@ fun AbilityRow(
     }
 }
 
+/**
+ * Dropdown menu s ktorym mi pomahal chatGPT
+ * Sluzi na nastavenie hodnoty pri volbe Standard array
+ */
+
 @Composable
 fun DropdownMenuBox(selected: String, options: List<String>, onOptionSelected: (String) -> Unit, setValue:(String) ->Unit) {
     var expanded by remember { mutableStateOf(false) }
@@ -210,6 +258,10 @@ fun DropdownMenuBox(selected: String, options: List<String>, onOptionSelected: (
     }
 }
 
+/**
+ * Horna lista obrazovky pre Stats obrazovku
+ */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsCheckTopAppBar(viewModel: CharacterCreationViewModel, modifier: Modifier, onBackClick: () -> Unit = {}, onNextPage: () -> Unit) {
@@ -237,7 +289,10 @@ fun StatsCheckTopAppBar(viewModel: CharacterCreationViewModel, modifier: Modifie
                 painter = painterResource(R.drawable._34226_back_arrow_left_icon),
                 contentDescription = stringResource(R.string.back_label_button),
                 modifier = Modifier
-                    .clickable { onBackClick() }
+                    .clickable {
+                        viewModel.resetAbilities()
+                        onBackClick()
+                    }
                     .padding(horizontal = 16.dp)
             )
         },

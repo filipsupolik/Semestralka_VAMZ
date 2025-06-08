@@ -1,20 +1,13 @@
 package com.example.vamz_semestralka_hero_journal_dnd.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,25 +17,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
@@ -66,6 +53,18 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.HeroProfile
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterUIState
 
+/**
+ * Obrazovka pre zobrazenie hodnot schopnosti a zakladnych statistik hraca
+ * Obrazovka je vytvorena pomocou ChatGPT
+ * ChatGPT mi dal zakladny navrh obrazovky, ktory som si nasledne upravil tak ako som ja potreboval
+ */
+
+
+/**
+ * Zakladna obrazovk, ktora obsahuje vsetky komponenty pokope
+ * @param characterCreationViewModel (viewModel)
+ * @param onBack (void), funkcia pouzita v navigacii pomocou ktore sa navigujem spat do zoznamu postav
+ */
 @Composable
 fun CharacterStatsScreen(
     characterCreationViewModel: CharacterCreationViewModel,
@@ -76,9 +75,7 @@ fun CharacterStatsScreen(
 
         Scaffold(
             topBar = {
-                ShowHeroTopAppBar(onMenuClick = {
-                    characterCreationViewModel.setOpenDrawer(true)
-                }, onBack = onBack)
+                ShowHeroTopAppBar(onBack = onBack, onDelete = { characterCreationViewModel.deleteCharacterFromList(currentHero?.name?:"") })
             }
         ) { innerPadding ->
             CharacterStatsMainPage(
@@ -89,35 +86,39 @@ fun CharacterStatsScreen(
                 currentHero = currentHero
             )
         }
-
-        SidePanel(
-            viewModel = characterCreationViewModel,
-            onBack = onBack,
-            currentHero = currentHero
-        )
 }
 
+/**
+ * Composable pre vrchnu listu obrazovky CharacterStatsScreen
+ * @param onBack (void), funkcia pouzita v navigacii pomocou ktore sa navigujem spat do zoznamu postav
+ * @param onDelete, funkcia pouzita na vymazanie aktualnej postavy zo zoznamu postav
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowHeroTopAppBar(onMenuClick: () -> Unit, onBack: () -> Unit) {
+fun ShowHeroTopAppBar(onBack: () -> Unit, onDelete: () -> Unit) {
     CenterAlignedTopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.stats))
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = stringResource(R.string.home_icon),
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.delete_icon),
                     modifier = Modifier.clickable {
                         onBack()
+                        onDelete()
                     }
                 )
             }
         },
         navigationIcon = {
-            IconButton(onClick = onMenuClick) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.menu))
-            }
+            Icon(
+                imageVector = Icons.Default.Home,
+                contentDescription = stringResource(R.string.home_icon),
+                modifier = Modifier.clickable {
+                    onBack()
+                }
+            )
         },
         colors = TopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -129,41 +130,9 @@ fun ShowHeroTopAppBar(onMenuClick: () -> Unit, onBack: () -> Unit) {
     )
 }
 
-@Composable
-fun SidePanel(
-    viewModel: CharacterCreationViewModel,
-    onBack: () -> Unit,
-    currentHero: HeroProfile?
-)
-{
-    val characterState by viewModel.uiState.collectAsState()
-
-    AnimatedVisibility(
-        enter = fadeIn() + slideInHorizontally(),
-        exit = fadeOut() + slideOutHorizontally(),
-        visible = characterState.openDrawer,
-        modifier = Modifier.verticalScroll(state = rememberScrollState())
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(top = 113.dp)
-                .fillMaxHeight()
-                .fillMaxWidth(0.5f)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(dimensionResource(R.dimen.padding_medium))
-        ) {
-            SidePanelInfo(
-                currentHero = currentHero,
-                onClose = { viewModel.setOpenDrawer(false) },
-                onDelete = {
-                    onBack()
-                    viewModel.deleteCharacterFromList(characterState.selectedPlayerName)
-                }
-            )
-        }
-    }
-}
-
+/**
+ * Obrazovka pre zobrazenie statistik bez vrchnej listy
+ */
 @Composable
 fun CharacterStatsMainPage(
     modifier: Modifier,
@@ -199,8 +168,6 @@ fun CharacterStatsMainPage(
             IconButton(onClick = onDecreaseHp) {
                 Icon(Icons.Default.FavoriteBorder, contentDescription = stringResource(R.string.remove_hp))
             }
-
-
 
             LinearProgressIndicator(
                 progress = {
@@ -243,7 +210,7 @@ fun CharacterStatsMainPage(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             items(currentHero?.raceStats?.toList()?: emptyList()) {(key, value) ->
-                StatCard(title = key.name, abilititesValue = value.toString())
+                AbilitiesValueCard(title = key.name, abilititesValue = value.toString())
             }
         }
 
@@ -262,7 +229,7 @@ fun CharacterStatsMainPage(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             items(currentHero?.totalStatsValue?.toList()?: emptyList()) {(key, value) ->
-                StatCard(key.name,
+                AbilitiesValueCard(key.name,
                     stringResource(
                         R.string.abilities_values,
                         value,
@@ -273,90 +240,12 @@ fun CharacterStatsMainPage(
     }
 }
 
+/**
+ * Karta pre zobrazenie hodnoty schopnosti
+ */
 
 @Composable
-fun SidePanelInfo(
-    currentHero: HeroProfile?,
-    onClose: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        Image(
-            painter = painterResource(id = R.drawable._03017_avatar_default_head_person_unknown_icon),
-            contentDescription = stringResource(R.string.character_image),
-            modifier = Modifier
-                .size(120.dp)
-                .align(Alignment.CenterHorizontally)
-                .clip(CircleShape)
-        )
-
-        Text(
-            text = currentHero?.name?:"",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = dimensionResource(R.dimen.padding_small))
-        )
-
-        Text(
-            text = stringResource(
-                R.string.sideBar_character_desc,
-                currentHero?.characterRace?.name?:"",
-                currentHero?.characterClass?.name?:""
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(stringResource(R.string.base_info_open_dialog_stats_page_title), style = MaterialTheme.typography.titleMedium)
-        Text(stringResource(R.string.name_in_side_panel, currentHero?.name?:""), style = MaterialTheme.typography.bodyMedium)
-        Text(
-            stringResource(
-                R.string.class_name_side_panel_stats_page,
-                currentHero?.characterClass?.name?:""
-            ), style = MaterialTheme.typography.bodyMedium)
-        Text(
-            stringResource(
-                R.string.race_name_stats_page_side_panel,
-                currentHero?.characterRace?.name?:""
-            ), style = MaterialTheme.typography.bodyMedium)
-        Text(
-            stringResource(
-                R.string.region_name_stats_page_side_panel,
-                currentHero?.region?.regionName?:""
-            ), style = MaterialTheme.typography.bodyMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = onDelete,
-        ) {
-            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_button_label))
-        }
-
-        Text(
-            stringResource(R.string.close_label_button_side_panel_stats_page),
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .clickable { onClose() }
-                .padding(top = dimensionResource(R.dimen.padding_small))
-        )
-    }
-}
-
-
-
-
-@Composable
-fun StatCard(title: String, abilititesValue: String, width: Dp = 120.dp) {
+fun AbilitiesValueCard(title: String, abilititesValue: String, width: Dp = 120.dp) {
     Column(
         modifier = Modifier
             .width(width)
@@ -370,59 +259,6 @@ fun StatCard(title: String, abilititesValue: String, width: Dp = 120.dp) {
         Text(abilititesValue, style = MaterialTheme.typography.headlineMedium)
     }
 }
-
-@Composable
-fun TotalXpAddingDialog(
-    xpToAdd: Int,
-    onXpChange: (String) -> Unit,
-    onIncrement: () -> Unit,
-    onDecrement: () -> Unit,
-    onCancel: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onCancel,
-        confirmButton = {
-            Button(onClick = onConfirm) {
-                Text(stringResource(R.string.ok_label_dialog_adding_XP))
-            }
-        },
-        dismissButton = {
-            Button(onClick = onCancel) {
-                Text(stringResource(R.string.cancel_label_dialog_adding_XP))
-            }
-        },
-        title = { Text(stringResource(R.string.Add_xp_title_dialog_adding_XP)) },
-        text = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = {
-                    onDecrement()
-                }) {
-                    Text(stringResource(R.string.minus))
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                OutlinedTextField(
-                    value = xpToAdd.toString(),
-                    onValueChange = onXpChange,
-                    singleLine = true,
-                    modifier = Modifier.width(100.dp)
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Button(onClick = {
-                    onIncrement()
-                }) {
-                    Text(stringResource(R.string.plus_button_label))
-                }
-            }
-        }
-    )
-}
-
-
 
 
 @Preview(showBackground = true, showSystemUi = true)

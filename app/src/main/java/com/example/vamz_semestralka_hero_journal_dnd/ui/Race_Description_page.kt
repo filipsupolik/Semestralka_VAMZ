@@ -51,6 +51,14 @@ import com.example.vamz_semestralka_hero_journal_dnd.data.HeroRaceDesc
 import com.example.vamz_semestralka_hero_journal_dnd.data.SubRace
 import com.example.vamz_semestralka_hero_journal_dnd.ui.state.CharacterCreationViewModel
 
+/**
+ * Hlavná obrazovka na zobrazenie popisu vybratej rasy v procese tvorby postavy.
+ * Zobrazuje obrázok rasy, základné informácie, vlastnosti, voliteľné subrasy a možnosť výberu jazyka.
+ *
+ * Obrazovka je vytvorena s pomocou ChatGPT, spytal som sa na kostru celej stranky do ktorej som si
+ * dorabal potrebne komponenty a logiku
+ */
+
 @Composable
 fun HeroRace_Description_Page(
     description: String,
@@ -96,37 +104,10 @@ fun HeroRace_Description_Page(
                     .background(MaterialTheme.colorScheme.background)
                     .padding(dimensionResource(R.dimen.padding_medium))
             ) {
-                Text(
-                    text = race?.name ?: "",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                BasicIndormationAboutRace(
+                    race = race,
+                    characterCreationViewModel = characterCreationViewModel
                 )
-
-                Text(
-                    text = race?.descriptionCharacterRace ?: "",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(stringResource(R.string.speed, race?.speed?: ""))
-                Text(stringResource(R.string.size, race?.size?: ""))
-                Text(
-                    stringResource(
-                        R.string.abilities_race_description_page,
-                        race?.baseStats?.entries?.joinToString { "${it.key} +${it.value}" }?:""))
-                Text(stringResource(R.string.languages, (race?.fixedLanguages?:"")))
-                race?.availableLanguages?.let {
-                    DropdownSelector(
-                        label = stringResource(R.string.choose_a_language),
-                        options = it.filterNot { it in race.fixedLanguages },
-                        selectedOption = characterState.selectedLanguage,
-                        onOptionSelected = { language->
-                            characterCreationViewModel.setSelectedLanguage(language)
-                        }
-                    )
-                }
-
 
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = stringResource(R.string.traits), style = MaterialTheme.typography.titleMedium)
@@ -147,47 +128,101 @@ fun HeroRace_Description_Page(
                         }
                     )
 
-                    SubraceSection(selectedSubrace = characterState.selectedSubRace)
+                    SubraceSelection(selectedSubrace = characterState.selectedSubRace)
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                    ) {
-                        Button(
-                            onClick = {
-                                characterCreationViewModel.resetRegion()
-                                onBack()
-                            }
-                        ) {
-                            Text(text = stringResource(R.string.back_label_button))
-                        }
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Button(
-                            onClick = {
-                                characterCreationViewModel.setPlayerSubRace(characterState.selectedSubRace)
-                                characterCreationViewModel.setHeroRace(characterState.characterRace.name)
-                                characterCreationViewModel.setPlayerLanguage(characterState.selectedLanguage)
-                                characterCreationViewModel.calculateBAseAttribute(
-                                    race = characterState.characterRace,
-                                    subRace = characterState.selectedSubRace
-                                )
-                                onNextPage()
-                            },
-                            enabled = characterState.selectedSubRace != null && characterState.selectedLanguage.isNotBlank()
-                        ) {
-                            Text(text = stringResource(R.string.next_label_button))
-                        }
-                    }
+                    BottomcontrolButtons(
+                        viewModel = characterCreationViewModel,
+                        onBack = onBack,
+                        onNextPage = onNextPage
+                    )
                 }
             }
         }
     }
 }
+
+/**
+ * Zobrazi tlacidla na spodnej strane obrazovky
+ * sluzia na navigaciu dalej a spat
+ */
+
+@Composable
+fun BottomcontrolButtons(
+    viewModel: CharacterCreationViewModel,
+    onBack: () -> Unit,
+    onNextPage: () -> Unit
+) {
+    val state by viewModel.uiState.collectAsState()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = dimensionResource(R.dimen.padding_medium))
+    ) {
+        Button(onClick = {
+            onBack()
+        }) {
+            Text(text = stringResource(R.string.back_label_button))
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Button(onClick = {
+            viewModel.calculateBAseAttribute(state.characterRace, state.selectedSubRace)
+            onNextPage()
+        }) {
+            Text(text = stringResource(R.string.next_label_button))
+        }
+    }
+}
+
+/**
+ * Zobrazí základné informácie o rase: názov, popis, rýchlosť, veľkosť, atribúty a jazyky.
+ * Tiež umožňuje výber dodatočného jazyka (ak sú dostupné).
+ */
+
+@Composable
+fun BasicIndormationAboutRace(
+    race: HeroRaceDesc?,
+    characterCreationViewModel: CharacterCreationViewModel
+) {
+    val state by characterCreationViewModel.uiState.collectAsState()
+
+    Text(
+        text = race?.name ?: "",
+        style = MaterialTheme.typography.headlineSmall,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+
+    Text(
+        text = race?.descriptionCharacterRace ?: "",
+        style = MaterialTheme.typography.bodyMedium
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text(stringResource(R.string.speed, race?.speed?: ""))
+    Text(stringResource(R.string.size, race?.size?: ""))
+    Text(
+        stringResource(
+            R.string.abilities_race_description_page,
+            race?.baseStats?.entries?.joinToString { "${it.key} +${it.value}" }?:""))
+    Text(stringResource(R.string.languages, (race?.fixedLanguages?:"")))
+    race?.availableLanguages?.let {
+        DropdownSelector(
+            label = stringResource(R.string.choose_a_language),
+            options = it.filterNot { it in race.fixedLanguages },
+            selectedOption = state.selectedLanguage,
+            onOptionSelected = { language->
+                characterCreationViewModel.setSelectedLanguage(language)
+            }
+        )
+    }
+}
+
+/**
+ * Zobrazí jednotlivú vlastnosť (trait) rasy alebo subrasy vo forme karty.
+ */
 
 @Composable
 fun TraitCard(name: String, description: String) {
@@ -203,6 +238,10 @@ fun TraitCard(name: String, description: String) {
         }
     }
 }
+
+/**
+ * Univerzálna rozbaľovacia ponuka (Dropdown), umožňuje výber jednej hodnoty zo zoznamu možností.
+ */
 
 @Composable
 fun DropdownSelector(
@@ -245,6 +284,11 @@ fun DropdownSelector(
         }
     }
 }
+
+/**
+ * Horný panel obrazovky (Top App Bar) pre obrazovku výberu rasy.
+ * Obsahuje tlačidlo späť a dopredu a názov sekcie.
+ */
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -312,9 +356,12 @@ fun CharacterPageTopAppBar(
     )
 }
 
+/**
+ * Sekcia zobrazená po výbere subrasy. Zobrazuje vlastnosti subrasy a extra atribúty.
+ */
 
 @Composable
-fun SubraceSection(selectedSubrace: SubRace?) {
+fun SubraceSelection(selectedSubrace: SubRace?) {
     if (selectedSubrace != null) {
         Text(stringResource(R.string.subrace_traits), style = MaterialTheme.typography.titleMedium)
 
